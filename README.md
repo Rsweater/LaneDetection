@@ -2,9 +2,10 @@
 
 LaneDetection is a comprehensive and stylistically unified lane detection library aimed at accelerating the progress of algorithm research and reproduction in scientific and industrial applications. Some of the reproduced methods achieve accuracy that surpasses the original paper results.
 
-
 ## Features
+
 ### **Data Design**
+
 * **Multi-Dataset Support:** Compatible with mainstream datasets including CuLane, TuSimple, VIL-100, and CurveLanes.
 * **Versatile Lane Modeling:** Supports various lane modeling methods tailored to different use cases.
 * **Unified Structure:** Designed with a consistent dataset structure and external interface for ease of use.
@@ -12,16 +13,18 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 * **Data Augmentation:** Integrates Albumetation for consistent model training and supports multi-scale image cropping.
 
 ### **Module Design**
-* **SOTA Algorithm Support:** Includes a wide range of classic state-of-the-art algorithms.
+
+* **SOTA Methods Support:** Includes a wide range of classic state-of-the-art algorithms.
 * **Streamlined Code:** Employs encapsulation and inheritance for a unified external interface and structured design, facilitating rapid implementation of diverse algorithms and enhancing understanding of their differences.
 
 ### **Training Design**
+
 * **Lifecycle Management:** Features a comprehensive module lifecycle management Runner for efficient tracking.
 * **Organized Logging:** Ensures a structured log storage system that allows for easy querying, alongside a logically organized configuration file structure.
 * **Version Control:** Provides functionality for easy code version comparison and supports bash scripts for quick environment configuration with single-line commands.
 
-
 ## Support Models
+
 <table align="center">
     <tr>
         <th><b>Paradigm</b></th>
@@ -29,33 +32,34 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
     </tr>
     <tr>
         <td>Traditional Semantic Segmentation</td>
-        <td>SCNN<input type="checkbox"/> RESA<input type="checkbox"/></td>
+        <td>☐SCNN  ☐RESA</td>
     </tr>
     <tr>
         <td>Grid Semantic Segmentation</td>
-        <td>UFLD<input type="checkbox"/> UFLDv2<input type="checkbox"/> CondLaneNet<input type="checkbox"/></td>
+        <td>☐UFLD ☐UFLDv2 ☐CondLaneNet</td>
     </tr>
     <tr>
         <td>Instance Segmentation</td>
-        <td>CondLaneNet<input type="checkbox"/></td>
+        <td>☐CondLaneNet</td>
     </tr>
     <tr>
         <td>Keypoints Detection</td>
-        <td>GANet<input type="checkbox"/></td>
+        <td>☐GANet</td>
     </tr>
     <tr>
         <td>Parametric Curve Detection</td>
-        <td>BézierLaneNet<input type="checkbox" checked/> BSNet<input type="checkbox"/></td>
+        <td>☑BézierLaneNet ☐BSNet</td>
     </tr>
     <tr>
         <td>Line-Proposal&Line-Anchor Detection</td>
-        <td>LaneATT<input type="checkbox"/> CLRNet<input type="checkbox" checked/> CLRerNet<input type="checkbox" checked/> O2SFormer<input type="checkbox"/> ADNet<input type="checkbox"/></td>
+        <td>☐LaneATT ☑CLRNet ☑CLRerNet ☐O2SFormer ☐ADNet</td>
     </tr>
 </table>
 
-
 ## Install
-### Local env setting:
+
+### Regular Method
+
 ```bash
 # Clone the repo
 git clone https://github.com/Rsweater/LaneDetection_mm.git
@@ -76,20 +80,19 @@ cd libs/models/layers/nms/ # 确保本地cuda版本与conda中一致
 python setup.py install
 cd ../../../../ # TODO: 直接导入
 ```
-### Bash script
+
+### Bash Script
+
 ```bash
 source install.sh
 ```
 
-
 ## Getting Started
-pass
-
 
 ## Citation
 
-
 ## References
+
 * [lucastabelini/LaneATT](https://github.com/lucastabelini/LaneATT)
 * [Wolfwjs/GANet](https://github.com/Wolfwjs/GANet)
 * [Turoad/lanedet](https://github.com/Turoad/lanedet)

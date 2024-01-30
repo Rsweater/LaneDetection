@@ -13,23 +13,23 @@
 
 | Architecture | Backbone | F1@50 | F1@75 | mF1 | Config | LogFile | Download |
 | :----------: | :-------: | :----: | ----- | --- | ------ | ------- | -------- |
-|   CLRerNet   | ResNet-18 | 73.67* |       |     |        |         |          |
-|   CLRerNet   | ResNet-34 | 75.57* |       |     |        |         |          |
-|   CLRerNet   |  DLA-34  |        |       |     |        |         |          |
+|   CLRerNet   | ResNet-18 |        |       |     |        |         |          |
+|   CLRerNet   | ResNet-34 | 80.76* |       |     |        |         |          |
+|   CLRerNet   |  DLA-34  | 81.12* |       |     |        |         |          |
 
 ### Results on TuSimple
 
 | Architecture | Backbone | F1@50 | F1@75 | mF1 | Config | LogFile | Download |
-| :----------: | :-------: | :----: | ----- | --- | ------ | ------- | -------- |
-|   CLRerNet   | ResNet-18 | 95.41* |       |     |        |         |          |
-|   CLRerNet   | ResNet-34 | 95.65* |       |     |        |         |          |
-|   CLRerNet   |  DLA-34  |        |       |     |        |         |          |
+| :----------: | :-------: | :---: | ----- | --- | ------ | ------- | -------- |
+|   CLRerNet   | ResNet-18 | 97.11 |       |     |        |         |          |
+|   CLRerNet   | ResNet-34 |      |       |     |        |         |          |
+|   CLRerNet   |  DLA-34  |      |       |     |        |         |          |
 
 ### Results on VIL-100
 
 | Architecture | Backbone | F1@50 | F1@75 | mF1 | Config | LogFile | Download |
 | :----------: | :-------: | :---: | ----- | --- | ------ | ------- | :------: |
-|   CLRerNet   | ResNet-18 | 85.92 |       |     |        |         |          |
+|   CLRerNet   | ResNet-18 |      |       |     |        |         |          |
 |   CLRerNet   | ResNet-34 |      |       |     |        |         |          |
 |   CLRerNet   |  DLA-34  |      |       |     |        |         |          |
 
