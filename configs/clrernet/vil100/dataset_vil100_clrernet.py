@@ -5,7 +5,7 @@
 """
 
 dataset_type = "VIL100Dataset"
-data_root = "/home/seasoning/lane/datasets/VIL100"
+data_root = "datasets/vil100"
 img_scale = (800, 320)
 
 img_norm_cfg = dict(
