@@ -82,19 +82,20 @@ class Alaug(object):
 
     def is_sorted(self, points):
         for lane in points:
-            lane_y = np.array(lane[1::2])
-            if not np.all(lane_y[1:] < lane_y[:-1]):
+            lane_y = np.array([coord[1] for coord in lane])
+            # check if y-coordinates are sorted in ascending order
+            if not np.all(lane_y[1:] > lane_y[:-1]):
                 return False
         return True
 
     @staticmethod
-    def cut_unsorted_points(lanes):
+    def cut_unsorted_points(lanes): # TODO：points、lanes 统一
         out_points = []
         for lane in lanes:
             out_points.append([])
             prev_y = 1e8
-            for x, y in zip(lane[0::2], lane[1::2]):
-                if y < prev_y:
+            for x, y in lane:
+                if y > prev_y:
                     out_points[-1].extend([x, y])
                     prev_y = y
                 else:
@@ -165,12 +166,12 @@ class Alaug(object):
             # run aug
             points_index = []
             for k in points:
-                points_index.append(int(len(k) / 2))
+                points_index.append(len(k))
             points_val = []
             for pts in points:
-                num = int(len(pts) / 2)
+                num = len(pts)
                 for i in range(num):
-                    points_val.append(pts[2 * i : 2 * i + 2])
+                    points_val.append(list(pts[i]))
             num_keypoints = len(points_val) // 2
             if keypoints_val is None:
                 keypoints_val = points_val
@@ -195,15 +196,10 @@ class Alaug(object):
         if "gt_masks" in data:
             data["gt_masks"] = [np.array(aug["mask"])]
         if "gt_keypoints" in data:
-            kp_list = [[0 for j in range(i * 2)] for i in keypoints_index]
-            for i in range(len(keypoints_index)):
-                for j in range(keypoints_index[i]):
-                    kp_list[i][2 * j] = aug["keypoints"][
-                        self.cal_sum_list(keypoints_index, i) + j
-                    ][0]
-                    kp_list[i][2 * j + 1] = aug["keypoints"][
-                        self.cal_sum_list(keypoints_index, i) + j
-                    ][1]
+            kp_list = [[] for i in range(len(keypoints_index))]
+            for lane_id in range(len(keypoints_index)):
+                for i in range(keypoints_index[lane_id]):
+                    kp_list[lane_id].append(points[self.cal_sum_list(keypoints_index, lane_id) + i])
             data["gt_keypoints"] = []
             valid = []
             for i in range(kp_group_num):
@@ -215,15 +211,10 @@ class Alaug(object):
         if "gt_points" in data:
             start_idx = num_keypoints if "gt_keypoints" in data else 0
             points = aug["keypoints"][start_idx:]
-            kp_list = [[0 for j in range(i * 2)] for i in points_index]
-            for i in range(len(points_index)):
-                for j in range(points_index[i]):
-                    kp_list[i][2 * j] = points[
-                        self.cal_sum_list(points_index, i) + j
-                    ][0]
-                    kp_list[i][2 * j + 1] = points[
-                        self.cal_sum_list(points_index, i) + j
-                    ][1]
+            kp_list = [[] for i in range(len(points_index))]
+            for lane_id in range(len(points_index)):
+                for i in range(points_index[lane_id]):
+                    kp_list[lane_id].append(points[self.cal_sum_list(points_index, lane_id) + i])
             data["gt_points"] = kp_list
 
         if "gt_bboxes" in data and kp_group_num == 0:

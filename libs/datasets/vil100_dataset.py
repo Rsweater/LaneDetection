@@ -6,19 +6,21 @@ import shutil
 from pathlib import Path
 
 import cv2
+import json
 import numpy as np
+from PIL import Image
 from mmdet.datasets.builder import DATASETS
 from mmdet.datasets.custom import CustomDataset
 from mmdet.utils import get_root_logger
 from tqdm import tqdm
 
-from libs.datasets.metrics.culane_metric import eval_predictions
+from libs.datasets.metrics.vil100_metric import eval_predictions
 from libs.datasets.pipelines import Compose
 
 
 @DATASETS.register_module
-class CulaneDataset(CustomDataset):
-    """Culane Dataset class."""
+class VIL100Dataset(CustomDataset):
+    """VIL100 Dataset class."""
 
     def __init__(
         self,
@@ -41,10 +43,9 @@ class CulaneDataset(CustomDataset):
                 to sample the predicted lanes for evaluation.
 
         """
-
+        # self.logger = get_root_logger(log_level="INFO")
         self.img_prefix = data_root
         self.test_mode = test_mode
-        self.ori_w, self.ori_h = 1640, 590
         # read image list
         self.diffs = (
             np.load(diff_file)["data"] if diff_file is not None else []
@@ -63,10 +64,6 @@ class CulaneDataset(CustomDataset):
         # build data pipeline
         self.pipeline = Compose(pipeline)
         self.result_dir = "tmp"
-        self.list_path = data_list
-        self.test_categories_dir = str(
-            Path(data_root).joinpath("list/test_split/")
-        )
         self.y_step = y_step
 
     def parse_datalist(self, data_list):
@@ -77,21 +74,21 @@ class CulaneDataset(CustomDataset):
         Returns:
             List[str]: List of image paths.
         """
-        img_infos, annotations, mask_paths = [], [], []
-        with open(data_list) as f:
-            lines = f.readlines()
-            for i, line in enumerate(lines):
-                if len(self.diffs) > 0 and self.diffs[i] < self.diff_thr:
-                    continue
-                img_paths = line.strip().split(" ")
-                img_infos.append(img_paths[0].lstrip("/"))
-                if not self.test_mode:
-                    anno_path = img_paths[0].replace(".jpg", ".lines.txt")
-                    annotations.append(anno_path.lstrip("/"))
-                    if len(img_paths) > 1:
-                        mask_paths.append(img_paths[1].lstrip("/"))
-                    else:
-                        mask_paths.append(None)
+        print("Geting VIL100 dataset...")
+        with open(data_list, "r") as img_list_file:
+            img_infos = [
+                img_name.strip()[1:] for img_name in img_list_file.readlines()
+            ]
+        if not self.test_mode:
+            annotations = [
+                img_path.replace("JPEGImages", "Json") + ".json" for img_path in img_infos
+            ]
+            mask_paths = [
+                img_path[:-3].replace("JPEGImages", "Annotations") + "png" for img_path in img_infos
+            ]
+        else:
+            annotations = ["testing..."]
+            mask_paths = ["testing..."]
         return img_infos, annotations, mask_paths
 
     def _set_group_flag(self):
@@ -111,28 +108,38 @@ class CulaneDataset(CustomDataset):
             dict: Pipeline results containing
                 'img' and 'img_meta' data containers.
         """
-        imgname = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
+        img_name = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
         sub_img_name = self.img_infos[idx]
-        img = cv2.imread(imgname)
-        ori_shape = img.shape
-        kps, id_classes, id_instances = self.load_labels(idx)
+        
+        img_tmp = np.array(Image.open(img_name))
+        ori_shape = img_tmp.shape
+        cut_height = img_tmp.shape[0] // 3
+        img = img_tmp[cut_height:, ...]
+        img_shape = crop_shape = img.shape
+
+        kps, id_classes, id_instances = self.load_labels(idx, cut_height)
         results = dict(
-            filename=imgname,
+            filename=img_name,
             sub_img_name=sub_img_name,
             img=img,
             gt_points=kps,
             id_classes=id_classes,
             id_instances=id_instances,
-            img_shape=ori_shape,
+            img_shape=img_shape,
             ori_shape=ori_shape,
             eval_shape=(
-                320,
-                1640,
+                crop_shape[0],
+                crop_shape[1],
             ),  # Used for LaneIoU calculation. Static for CULane dataset.
+            crop_shape=crop_shape,
             gt_masks=None,
         )
         if self.mask_paths[0]:
-            results["gt_masks"] = self.load_mask(idx)
+            mask = self.load_mask(idx)
+            mask = mask[cut_height:, :]
+            assert mask.shape[:2] == crop_shape[:2]
+            results["gt_masks"] = mask
+
         return self.pipeline(results)
 
     def prepare_test_img(self, idx):
@@ -146,8 +153,12 @@ class CulaneDataset(CustomDataset):
         """
         img_name = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
         sub_img_name = self.img_infos[idx]
-        img = cv2.imread(img_name)
-        ori_shape = img.shape
+        img_tmp = np.array(Image.open(img_name))
+        ori_shape = img_tmp.shape
+        cut_height = img_tmp.shape[0] // 3
+        img = img_tmp[cut_height:, ...]
+        img_shape = crop_shape = img.shape
+        crop_offset = [0, cut_height]
         results = dict(
             filename=img_name,
             sub_img_name=sub_img_name,
@@ -155,8 +166,10 @@ class CulaneDataset(CustomDataset):
             gt_points=[],
             id_classes=[],
             id_instances=[],
-            img_shape=ori_shape,
+            img_shape=img_shape,
             ori_shape=ori_shape,
+            crop_offset=crop_offset,
+            crop_shape=crop_shape,
         )
         return self.pipeline(results)
 
@@ -169,10 +182,10 @@ class CulaneDataset(CustomDataset):
             numpy.ndarray: segmentation mask.
         """
         maskname = str(Path(self.img_prefix).joinpath(self.mask_paths[idx]))
-        mask = cv2.imread(maskname, cv2.IMREAD_UNCHANGED)
+        mask = np.array(Image.open(maskname))
         return mask
 
-    def load_labels(self, idx, offset_y=0):
+    def load_labels(self, idx, cut_height=0):
         """
         Read a ground-truth lane from an annotation file.
         Args:
@@ -183,19 +196,21 @@ class CulaneDataset(CustomDataset):
             list: instance id (start from 1) for lane instances.
         """
         anno_dir = str(Path(self.img_prefix).joinpath(self.annotations[idx]))
-        with open(anno_dir, 'r') as anno_file:
-            data = [
-                list(map(float, line.split()))
-                for line in anno_file.readlines()
+        
+        with open(anno_dir, "r") as anno_file:
+            lanes = [
+                lane["points"] for lane in json.load(anno_file)["annotations"]["lane"]
             ]
-        lanes = [[(lane[i], lane[i + 1]) for i in range(0, len(lane), 2)
-                  if lane[i] >= 0 and lane[i + 1] >= 0] for lane in data]
+        # point of lane, y of lane, y+offset_y
+        # lanes: [[(x_00,y0), (x_01,y1), ...], [(x_10,y0), (x_11,y1), ...], ...]
+        lanes = [[(point[0], point[1] - cut_height) for point in lane] for lane in lanes]
         # remove duplicated points in each lane
         lanes = [list(set(lane)) for lane in lanes]  
         # remove lanes with less than 2 points 
         lanes = [lane for lane in lanes if len(lane) > 1] 
         # sort lanes by their y-coordinates in ascending order for interpolation
         lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
+
         id_classes = [1 for i in range(len(lanes))]
         id_instances = [i + 1 for i in range(len(lanes))]
         return lanes, id_classes, id_instances
@@ -216,52 +231,46 @@ class CulaneDataset(CustomDataset):
         """
         for result in tqdm(results):
             lanes = result["result"]["lanes"]
+            ori_shape = result["meta"]["ori_shape"]
             dst_path = (
                 Path(self.result_dir)
-                .joinpath(result["meta"]["sub_img_name"])
-                .with_suffix(".lines.txt")
+                .joinpath(result["meta"]["sub_img_name"].replace(
+                        "JPEGImages", "Json").replace(
+                        ".jpg", ".jpg.json"))
             )
             dst_path.parents[0].mkdir(parents=True, exist_ok=True)
-            with open(str(dst_path), "w") as f:
-                output = self.get_prediction_string(lanes)
-                if len(output) > 0:
-                    print(output, file=f)
-
+            lanes = self.get_prediction_as_points(lanes, ori_shape)
+            # save output in my format
+            # if len(lanes) > 0:
+            with open(dst_path, "w") as out_file:
+                output = {
+                    "ori_shape": ori_shape,
+                    "lanes": lanes,
+                }
+                json.dump(output, out_file)
+        # TODO: 修改eval_predictions函数，使其支持VIL100数据集
         results = eval_predictions(
             self.result_dir,
             self.img_prefix,
-            self.list_path,
-            self.test_categories_dir,
+            self.img_infos,
+            # self.annotations,
             logger=get_root_logger(log_level="INFO"),
         )
         shutil.rmtree(self.result_dir)
         return results
 
-    def get_prediction_string(self, lanes):
-        """
-        Convert lane instance structure to prediction strings.
-        Args:
-            lanes (List[Lane]): List of lane instances in `Lane` structure.
-        Returns:
-            out_string (str): Output string.
-        """
-        ys = np.arange(0, self.ori_h, self.y_step) / self.ori_h
-        out = []
-        for lane in lanes:
+    def get_prediction_as_points(self, pred, ori_shape):
+        ys = np.arange(0, ori_shape[0], self.y_step) / ori_shape[0]
+        lanes = []
+        for lane in pred:
             xs = lane(ys)
             valid_mask = (xs >= 0) & (xs < 1)
-            xs = xs * self.ori_w
+            xs = xs * ori_shape[1]
             lane_xs = xs[valid_mask]
-            lane_ys = ys[valid_mask] * self.ori_h
+            lane_ys = ys[valid_mask] * ori_shape[0]
             lane_xs, lane_ys = lane_xs[::-1], lane_ys[::-1]
-            if len(lane_xs) < 2:
-                continue
-            lane_str = " ".join(
-                [
-                    "{:.5f} {:.5f}".format(x, y)
-                    for x, y in zip(lane_xs, lane_ys)
-                ]
-            )
-            if lane_str != "":
-                out.append(lane_str)
-        return "\n".join(out) if len(out) > 0 else ""
+            lane = list(zip(lane_xs, lane_ys))
+            if len(lane) > 1:
+                lanes.append(lane)
+
+        return lanes

@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.interpolate import InterpolatedUnivariateSpline, splev, splprep
+from scipy.interpolate import InterpolatedUnivariateSpline, splev, splrep, splprep
 
 
 class Lane:
@@ -68,8 +68,8 @@ def sample_lane(points, sample_ys, img_w):
 
     Args:
         points (List[numpy.float64]): lane point coordinate list (length = Np * 2).
-          The values are treated as (x0, y0, x1, y1, ...., xp-1, yp-1).
-          y0 ~ yp-1 must be sorted in descending order (y1 > y0).
+          The values are treated as [(x0, y0), (x1, y1), ...., (xp-1, yp-1)].
+          y0 ~ yp-1 must be sorted in ascending order (y1 > y0).
         sample_ys (numpy.ndarray): shape (Nr,).
         img_w (int): image width.
 
@@ -79,25 +79,25 @@ def sample_lane(points, sample_ys, img_w):
     Np: number of input lane points, Nr: number of rows,
     No and Ni: number of x coordinates outside and inside image.
     """
-    points = np.array([points[0::2], points[1::2]]).transpose(1, 0)
-    if not np.all(points[1:, 1] < points[:-1, 1]):
+    points = np.array(points)
+    if not np.all(points[1:, 1] > points[:-1, 1]):
         print(points)
         raise Exception("Annotaion points have to be sorted")
     x, y = points[:, 0], points[:, 1]
 
     # interpolate points inside domain
     assert len(points) > 1
-    interp = InterpolatedUnivariateSpline(y[::-1], x[::-1], k=min(3, len(points) - 1))
+    interp = InterpolatedUnivariateSpline(y, x, k=min(3, len(points) - 1))
     domain_min_y = y.min()
     domain_max_y = y.max()
     mask_inside_domain = (sample_ys >= domain_min_y) & (sample_ys <= domain_max_y)
     sample_ys_inside_domain = sample_ys[mask_inside_domain]
-    if len(sample_ys_inside_domain) == 0:
-        return np.zeros(0), np.zeros(0)
+    assert len(sample_ys_inside_domain) > 0
     interp_xs = interp(sample_ys_inside_domain)
 
     # extrapolate lane to the bottom of the image with a straight line using the 2 points closest to the bottom
-    two_closest_points = points[:2]
+    n_closest = max(len(points) // 5, 2)
+    two_closest_points = points[:n_closest]
     extrap = np.polyfit(two_closest_points[:, 1], two_closest_points[:, 0], deg=1)
     extrap_ys = sample_ys[sample_ys > domain_max_y]
     extrap_xs = np.polyval(extrap, extrap_ys)
@@ -107,4 +107,26 @@ def sample_lane(points, sample_ys, img_w):
     inside_mask = (all_xs >= 0) & (all_xs < img_w)
     xs_inside_image = all_xs[inside_mask]
     xs_outside_image = all_xs[~inside_mask]
+    return xs_outside_image, xs_inside_image
+
+def interp_extrap(points, sample_ys, img_w):
+    """
+    Interpolate and extrapolate lane points on the horizontal grids.
+    """
+    points = np.array(points)
+    if not np.all(points[1:, 1] > points[:-1, 1]):
+        print(points)
+        raise Exception("Annotaion points have to be sorted")
+    x, y = points[:, 0], points[:, 1]
+    assert len(points) > 1
+    f = splrep(y, x, k=1, s=50) 
+    """ Error:
+    untimeWarning: The maximal number of iterations (20) allowed for finding smoothing
+    spline with fp=s has been reached. Probable cause: s too small.
+    """
+    new_x_pts = splev(sample_ys, f)
+    
+    inside_mask = (new_x_pts >= 0) & (new_x_pts < img_w)
+    xs_inside_image = new_x_pts[inside_mask]
+    xs_outside_image = new_x_pts[~inside_mask]
     return xs_outside_image, xs_inside_image

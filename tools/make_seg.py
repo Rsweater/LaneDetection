@@ -8,6 +8,8 @@ from mmcv import Config
 from mmcv import DictAction
 from mmdet.datasets import build_dataset
 from tqdm import tqdm
+import sys
+sys.path.insert(0, "/home/seasoning/VOD/CLRerNet")
 
 from libs.datasets.metrics.culane_metric import draw_lane
 from libs.datasets.metrics.culane_metric import interp

@@ -8,12 +8,14 @@ import os
 import os.path as osp
 import time
 import warnings
+import sys
+sys.path.insert(0, "/home/seasoning/VOD/CLRerNet")
 
 import torch
 from mmcv.runner import get_dist_info, init_dist
 from mmcv.utils import Config, DictAction, get_git_hash, mkdir_or_exist
 from mmdet import __version__
-from mmdet.apis import set_random_seed, train_detector
+from libs.api.train import set_random_seed, train_detector, cp_projects
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
 from mmdet.utils import collect_env, get_device, get_root_logger
@@ -113,9 +115,10 @@ def main():
         cfg.work_dir = args.work_dir
     elif cfg.get("work_dir", None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
+        timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
         cfg.work_dir = osp.join(
-            "./work_dirs", osp.splitext(osp.basename(args.config))[0]
-        )
+            './work_dirs', osp.splitext(osp.basename(args.config))[0], timestamp
+            )
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
     if args.gpu_ids is not None:
@@ -128,6 +131,12 @@ def main():
     # init distributed env first, since logger depends on the dist info.
     if args.launcher == "none":
         distributed = False
+        if len(cfg.gpu_ids) > 1:
+            warnings.warn(
+                f'We treat {cfg.gpu_ids} as gpu-ids, and reset to '
+                f'{cfg.gpu_ids[0:1]} as gpu-ids to avoid potential error in '
+                'non-distribute training time.')
+            cfg.gpu_ids = cfg.gpu_ids[0:1]
     else:
         distributed = True
         init_dist(args.launcher, **cfg.dist_params)
@@ -143,6 +152,7 @@ def main():
     timestamp = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     log_file = osp.join(cfg.work_dir, f"{timestamp}.log")
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
+    cp_projects(osp.join(cfg.work_dir))
 
     # init the meta dict to record some important information such as
     # environment info and seed, which will be logged

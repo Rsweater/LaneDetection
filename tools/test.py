@@ -4,6 +4,8 @@ import os
 import os.path as osp
 import time
 import warnings
+import sys
+sys.path.insert(0, "/home/seasoning/VOD/CLRerNet")
 
 # suppress mmcv v2.0.0 announcement
 warnings.filterwarnings('ignore', module='mmcv')
