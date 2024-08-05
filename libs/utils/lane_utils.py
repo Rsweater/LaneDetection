@@ -40,7 +40,7 @@ class Lane:
         raise StopIteration
 
 
-def interp(points, n=5):
+def interp(points, n=50):
     """
     Adapted from:
     https://github.com/lucastabelini/LaneATT/blob/main/utils/culane_metric.py
@@ -53,7 +53,7 @@ def interp(points, n=5):
     """
     x = [x for x, _ in points]
     y = [y for _, y in points]
-    tck, u = splprep([x, y], s=0, t=5, k=min(3, len(points) - 1))
+    tck, u = splprep([x, y], s=0, t=8, k=min(3, len(points) - 1))
 
     u = np.linspace(0.0, 1.0, num=(len(u) - 1) * n + 1)
     output = np.array(splev(u, tck)).T

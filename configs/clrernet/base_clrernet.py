@@ -1,10 +1,6 @@
 model = dict(
     type="CLRerNet",
-    backbone=dict(
-        type="DLANet",
-        dla="dla34",
-        pretrained=True,
-    ),
+    backbone=dict(type="DLANet"),
     neck=dict(
         type="CLRerNetFPN",
         in_channels=[128, 256, 512],

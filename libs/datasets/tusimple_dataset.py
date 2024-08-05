@@ -146,7 +146,7 @@ class TuSimpleDataset(CustomDataset):
             numpy.ndarray: segmentation mask.
         """
         mask_path = self.img_infos[idx]["raw_file"].replace('clips',
-                                                     'seg_label')[:-3] + 'png'
+                                                     'seg_label_6')[:-3] + 'png'
         maskname = str(Path(self.img_prefix).joinpath(mask_path))
         mask = np.array(Image.open(maskname))
         return mask
@@ -167,13 +167,14 @@ class TuSimpleDataset(CustomDataset):
                 self.img_infos[idx]['h_samples']) if x >= 0
             ] for lane in self.img_infos[idx]['lanes']
         ]  
+        # Never mind that, the label of the tusimple dataset
         # remove duplicated points in each lane
-        lanes = [list(set(lane)) for lane in lanes]  
-        # remove lanes with less than 2 points 
-        lanes = [lane for lane in lanes if len(lane) > 1] 
-        # sort lanes by their y-coordinates in ascending order for interpolation
-        lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
-        id_classes = [1 for i in range(len(lanes))]
+        # lanes = [list(set(lane)) for lane in lanes]  
+        # # remove lanes with less than 2 points 
+        # lanes = [lane for lane in lanes if len(lane) > 1] 
+        # # sort lanes by their y-coordinates in ascending order for interpolation
+        # lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
+        id_classes = [1 for i in range(len(lanes))] # TODO： 根据slope划分
         id_instances = [i + 1 for i in range(len(lanes))]
         return lanes, id_classes, id_instances
 

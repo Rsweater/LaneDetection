@@ -20,6 +20,11 @@ cfg_name = "clrernet_curvelanes_dla34.py"
 
 model = dict(
     type="CLRerNet",
+    backbone=dict(
+        type="DLANet",
+        dla="dla34",
+        pretrained=True,
+    ),
     bbox_head=dict(
         type="CLRerHead",
         loss_iou=dict(

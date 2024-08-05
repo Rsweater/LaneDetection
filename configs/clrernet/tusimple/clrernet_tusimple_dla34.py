@@ -1,6 +1,6 @@
 _base_ = [
     "../base_clrernet.py",
-    "dataset_vil100_clrernet.py",
+    "dataset_tusimple_clrernet.py",
     "../../_base_/default_runtime.py",
 ]
 
@@ -16,17 +16,24 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-cfg_name = "clrernet_curvelanes_dla34.py"
+cfg_name = "clrernet_tusimple_r18.py"
 
 model = dict(
     type="CLRerNet",
-    backbone=dict(
-        type="DLANet",
-        dla="dla34",
-        pretrained=True,
-    ),
+        backbone=dict(
+        type='ResNet',
+        depth=18,
+        num_stages=4,
+        out_indices=(1, 2, 3),
+        frozen_stages=-1,
+        norm_cfg=dict(type='BN', requires_grad=True),
+        norm_eval=False,
+        style='pytorch',
+        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
     bbox_head=dict(
         type="CLRerHead",
+        loss_cls=dict(type="KorniaFocalLoss", alpha=0.25, gamma=2, loss_weight=6.0),
+        loss_bbox=dict(type="SmoothL1Loss", reduction="none", loss_weight=0.2),
         loss_iou=dict(
             type="LaneIoULoss",
             lane_width=2.5 / 800,
@@ -34,7 +41,7 @@ model = dict(
         ),
         loss_seg=dict(
             loss_weight=2.0,
-            num_classes=9,  # 8 lane + 1 background
+            num_classes=7,  # 6 lane + 1 background
         ),
     ),
     # training and testing settings
@@ -59,12 +66,15 @@ model = dict(
         use_nms=True,
         as_lanes=True,
         nms_thres=50,
-        nms_topk=8,
+        nms_topk=7,
+        ori_img_w=1280,
+        ori_img_h=720,
+        cut_height=160,
     ),
 )
 
 total_epochs = 150
-evaluation = dict(start=20, interval=5)
+evaluation = dict(start=1, interval=1)
 checkpoint_config = dict(interval=5, max_keep_ckpts=3)
 
 
@@ -78,6 +88,7 @@ optimizer_config = dict(grad_clip=None)
 lr_config = dict(policy="CosineAnnealing", min_lr=0.0, by_epoch=False)
 
 log_config = dict(
+    interval=50,
     hooks=[
         dict(type="TextLoggerHook"),
         dict(type="TensorboardLoggerHookEpoch"),

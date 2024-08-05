@@ -18,7 +18,13 @@ custom_imports = dict(
 
 cfg_name = "clrernet_culane_dla34.py"
 
-model = dict(test_cfg=dict(conf_threshold=0.43))
+model = dict(
+    backbone=dict(
+        type="DLANet",
+        dla="dla34",
+        pretrained=True,
+    ),
+    test_cfg=dict(conf_threshold=0.43))
 
 custom_hooks = [dict(type="ExpMomentumEMAHook", momentum=0.0001, priority=5)]
 
