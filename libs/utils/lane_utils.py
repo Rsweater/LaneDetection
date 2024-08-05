@@ -60,7 +60,7 @@ def interp(points, n=50):
     return output
 
 
-def sample_lane(points, sample_ys, img_w):
+def sample_lane(points, sample_ys, img_w, extrapolate=True):
     """
     Sample lane points on the horizontal grids.
     Adapted from:
@@ -72,6 +72,7 @@ def sample_lane(points, sample_ys, img_w):
           y0 ~ yp-1 must be sorted in ascending order (y1 > y0).
         sample_ys (numpy.ndarray): shape (Nr,).
         img_w (int): image width.
+        extrapolate (bool): Whether to extrapolate lane points to the bottom of the image.
 
     Returns:
         numpy.ndarray: x coordinates outside the image, shape (No,).
@@ -95,13 +96,16 @@ def sample_lane(points, sample_ys, img_w):
     assert len(sample_ys_inside_domain) > 0
     interp_xs = interp(sample_ys_inside_domain)
 
-    # extrapolate lane to the bottom of the image with a straight line using the 2 points closest to the bottom
-    n_closest = max(len(points) // 5, 2)
-    two_closest_points = points[:n_closest]
-    extrap = np.polyfit(two_closest_points[:, 1], two_closest_points[:, 0], deg=1)
-    extrap_ys = sample_ys[sample_ys > domain_max_y]
-    extrap_xs = np.polyval(extrap, extrap_ys)
-    all_xs = np.hstack((extrap_xs, interp_xs))
+    # extrapolate lane to the bottom of the image with a straight line using the some points closest to the bottom
+    if extrapolate:
+        n_closest = max(len(points) // 5, 2)
+        two_closest_points = points[:n_closest]
+        extrap = np.polyfit(two_closest_points[:, 1], two_closest_points[:, 0], deg=1)
+        extrap_ys = sample_ys[sample_ys > domain_max_y]
+        extrap_xs = np.polyval(extrap, extrap_ys)
+        all_xs = np.hstack((extrap_xs, interp_xs))
+    else:
+        all_xs = interp_xs
 
     # separate between inside and outside points
     inside_mask = (all_xs >= 0) & (all_xs < img_w)

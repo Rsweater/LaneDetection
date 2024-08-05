@@ -16,6 +16,7 @@ Docker environment is recommended for installation:
 
 ```bash
 conda create -n LaneDetection python=3.8 -y
+# TODO: 测试25.3 1.5.1版本是否有share冲突
 pip install torch==1.12.1+cu116 torchvision==0.13.1 torchaudio -f https://download.pytorch.org/whl/torch_stable.html
 pip install -U openmim
 mim install mmcv-full==1.7.0

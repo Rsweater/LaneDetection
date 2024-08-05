@@ -5,7 +5,7 @@
 """
 
 dataset_type = "VIL100Dataset"
-data_root = "datasets/vil100"
+data_root = "dataset/vil100"
 img_scale = (800, 320)
 
 img_norm_cfg = dict(
@@ -79,6 +79,7 @@ train_pipeline = [
     dict(
         type="CollectCLRNet",
         max_lanes=6,
+        # extrapolate=False,
         keys=["img"],
         meta_keys=[
             "filename",
@@ -103,6 +104,7 @@ val_pipeline = [
     dict(
         type="CollectCLRNet",
         max_lanes=6,
+        # extrapolate=False,
         keys=["img"],
         meta_keys=[
             "filename",

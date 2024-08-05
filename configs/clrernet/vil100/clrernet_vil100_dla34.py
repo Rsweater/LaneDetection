@@ -68,7 +68,7 @@ evaluation = dict(start=20, interval=5)
 checkpoint_config = dict(interval=5, max_keep_ckpts=3)
 
 
-data = dict(samples_per_gpu=24)  # single GPU setting
+data = dict(samples_per_gpu=16)  # single GPU setting
 
 # optimizer
 optimizer = dict(type="AdamW", lr=6e-4)

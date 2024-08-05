@@ -248,7 +248,7 @@ class VIL100Dataset(CustomDataset):
                     "lanes": lanes,
                 }
                 json.dump(output, out_file)
-        # TODO: 修改eval_predictions函数，使其支持VIL100数据集
+
         results = eval_predictions(
             self.result_dir,
             self.img_prefix,

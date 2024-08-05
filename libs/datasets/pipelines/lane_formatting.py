@@ -15,11 +15,13 @@ class CollectCLRNet(Collect):
         keys=None,
         meta_keys=None,
         max_lanes=4,
+        extrapolate=True,
         num_points=72,
         img_w=800,
         img_h=320,
     ):
         self.keys = keys
+        self.extrapolate = extrapolate
         self.meta_keys = meta_keys
         self.max_lanes = max_lanes
         self.n_offsets = num_points
@@ -42,7 +44,7 @@ class CollectCLRNet(Collect):
         for lane_idx, lane in enumerate(old_lanes):
             try:
                 xs_outside_image, xs_inside_image = sample_lane(
-                    lane, self.offsets_ys, self.img_w
+                    lane, self.offsets_ys, self.img_w, extrapolate=self.extrapolate
                 )
             except AssertionError:
                 continue
