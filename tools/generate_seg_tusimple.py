@@ -120,7 +120,7 @@ def generate_label(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root',
-                        default='/home/data/cbw/lane/dataset/TUSimple',
+                        default='/data/cbw/lane/datasets/TUSimple',
                         help='The root of the Tusimple dataset')
     parser.add_argument('--anno_savedir',
                         type=str,
