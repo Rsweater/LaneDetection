@@ -29,7 +29,6 @@ model = dict(
         type="CLRerHead",
         loss_iou=dict(
             type="LaneIoULoss",
-            lane_width=2.5 / 800,
             loss_weight=4.0,
         ),
         loss_seg=dict(
@@ -42,13 +41,11 @@ model = dict(
         assigner=dict(
             iou_dynamick=dict(
                 type="LaneIoUCost",
-                lane_width=2.5 / 800,
                 use_pred_start_end=False,
                 use_giou=True,
             ),
             iou_cost=dict(
                 type="LaneIoUCost",
-                lane_width=10 / 800,
                 use_pred_start_end=True,
                 use_giou=True,
             ),
