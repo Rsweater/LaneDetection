@@ -18,51 +18,35 @@ compose_cfg = dict(bboxes=False, keypoints=True, masks=True)
 train_al_pipeline = [
     dict(type="Compose", params=compose_cfg),
     dict(type="Resize", height=img_scale[1], width=img_scale[0], p=1),
+    dict(type="HorizontalFlip", p=0.5),
+    dict(type="ChannelShuffle", p=0.1),
     dict(
-        type="OneOf",
-        transforms=[
-            dict(
-                type="RGBShift",
-                r_shift_limit=10,
-                g_shift_limit=10,
-                b_shift_limit=10,
-                p=1.0,
-            ),
-            dict(
-                type="HueSaturationValue",
-                hue_shift_limit=(-10, 10),
-                sat_shift_limit=(-15, 15),
-                val_shift_limit=(-10, 10),
-                p=1.0,
-            ),
-        ],
+        type="RandomBrightnessContrast",
+        brightness_limit=0.04,
+        contrast_limit=0.15,
+        p=0.6,
+    ),
+    dict(
+        type="HueSaturationValue",
+        hue_shift_limit=(-10, 10),
+        sat_shift_limit=(-10, 10),
+        val_shift_limit=(-10, 10),
         p=0.7,
     ),
-    dict(type="JpegCompression", quality_lower=85, quality_upper=95, p=0.2),
     dict(
         type="OneOf",
         transforms=[
-            dict(type="Blur", blur_limit=3, p=1.0),
-            dict(type="MedianBlur", blur_limit=3, p=1.0),
+            dict(type="MotionBlur", blur_limit=5, p=1.0),
+            dict(type="MedianBlur", blur_limit=5, p=1.0),
         ],
         p=0.2,
     ),
-    dict(type="RandomBrightness", limit=0.2, p=0.6),
     dict(
-        type="ShiftScaleRotate",
-        shift_limit=0.1,
-        scale_limit=(-0.2, 0.2),
-        rotate_limit=10,
-        border_mode=0,
-        p=0.6,
-    ),
-    dict(
-        type="RandomResizedCrop",
-        height=img_scale[1],
-        width=img_scale[0],
+        type="IAAAffine",
         scale=(0.8, 1.2),
-        ratio=(1.7, 2.7),
-        p=0.6,
+        rotate=(-10.0, 10.0),  # this sometimes breaks lane sorting
+        translate_percent=0.1,
+        p=0.7,
     ),
     dict(type="Resize", height=img_scale[1], width=img_scale[0], p=1),
 ]
@@ -73,7 +57,8 @@ val_al_pipeline = [
 ]
 
 train_pipeline = [
-    dict(type="albumentation", pipelines=train_al_pipeline, cut_unsorted=True),
+    dict(type="albumentation", pipelines=train_al_pipeline, 
+            cut_y_duplicated=True, need_resorted=True),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
@@ -98,7 +83,8 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type="albumentation", pipelines=val_al_pipeline, cut_unsorted=False),
+    dict(type="albumentation", pipelines=val_al_pipeline, 
+            cut_y_duplicated=True, need_resorted=True),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(

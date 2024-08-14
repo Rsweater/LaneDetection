@@ -204,10 +204,10 @@ class VIL100Dataset(CustomDataset):
         # point of lane, y of lane, y+offset_y
         # lanes: [[(x_00,y0), (x_01,y1), ...], [(x_10,y0), (x_11,y1), ...], ...]
         lanes = [[(point[0], point[1] - cut_height) for point in lane] for lane in lanes]
-        # remove duplicated points in each lane
-        lanes = [list(set(lane)) for lane in lanes]  
-        # remove lanes with less than 2 points 
-        lanes = [lane for lane in lanes if len(lane) > 1] 
+        # # remove duplicated points in each lane
+        # lanes = [list(set(lane)) for lane in lanes]  
+        # # remove lanes with less than 2 points 
+        # lanes = [lane for lane in lanes if len(lane) > 1] 
         # sort lanes by their y-coordinates in ascending order for interpolation
         lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
 
