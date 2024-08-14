@@ -191,9 +191,9 @@ class CulaneDataset(CustomDataset):
         lanes = [[(lane[i], lane[i + 1]) for i in range(0, len(lane), 2)
                   if lane[i] >= 0 and lane[i + 1] >= 0] for lane in data]
         # remove duplicated points in each lane
-        lanes = [list(set(lane)) for lane in lanes]  
+        # lanes = [list(set(lane)) for lane in lanes]  
         # remove lanes with less than 2 points 
-        lanes = [lane for lane in lanes if len(lane) > 1] 
+        # lanes = [lane for lane in lanes if len(lane) > 1] 
         # sort lanes by their y-coordinates in ascending order for interpolation
         lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
         id_classes = [1 for i in range(len(lanes))]

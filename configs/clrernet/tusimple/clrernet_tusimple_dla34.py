@@ -36,11 +36,11 @@ model = dict(
         loss_bbox=dict(type="SmoothL1Loss", reduction="none", loss_weight=0.5),
         loss_iou=dict(
             type="LaneIoULoss",
-            lane_width=9 / 800,
+            # lane_width=9 / 800,
             loss_weight=4.0,
         ),
         loss_seg=dict(
-            # loss_weight=2.0,
+            loss_weight=1.0,
             num_classes=7,  # 6 lane + 1 background
         ),
     ),
@@ -49,20 +49,20 @@ model = dict(
         assigner=dict(
             iou_dynamick=dict(
                 type="LaneIoUCost",
-                lane_width=9 / 800,
+                # lane_width=9 / 800,
                 use_pred_start_end=False,
                 use_giou=True,
             ),
             iou_cost=dict(
                 type="LaneIoUCost",
-                lane_width=15 / 800,
+                # lane_width=15 / 800,
                 use_pred_start_end=True,
                 use_giou=True,
             ),
         )
     ),
     test_cfg=dict(
-        conf_threshold=0.43,
+        conf_threshold=0.35,
         use_nms=True,
         as_lanes=True,
         nms_thres=50,
@@ -74,8 +74,8 @@ model = dict(
 )
 
 total_epochs = 150
-evaluation = dict(start=1, interval=1)
-checkpoint_config = dict(interval=5, max_keep_ckpts=3)
+evaluation = dict(start=20, interval=5)
+checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
 
 data = dict(samples_per_gpu=24)  # single GPU setting

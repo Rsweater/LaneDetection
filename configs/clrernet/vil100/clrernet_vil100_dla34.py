@@ -29,7 +29,7 @@ model = dict(
         type="CLRerHead",
         loss_iou=dict(
             type="LaneIoULoss",
-            lane_width=9 / 800,
+            # lane_width=2.5 / 800,
             loss_weight=4.0,
         ),
         loss_seg=dict(
@@ -42,13 +42,13 @@ model = dict(
         assigner=dict(
             iou_dynamick=dict(
                 type="LaneIoUCost",
-                lane_width=9 / 800,
+                # lane_width=2.5 / 800,
                 use_pred_start_end=False,
                 use_giou=True,
             ),
             iou_cost=dict(
                 type="LaneIoUCost",
-                lane_width=15 / 800,
+                # lane_width=10 / 800,
                 use_pred_start_end=True,
                 use_giou=True,
             ),
@@ -65,7 +65,7 @@ model = dict(
 
 total_epochs = 150
 evaluation = dict(start=20, interval=5)
-checkpoint_config = dict(interval=5, max_keep_ckpts=3)
+checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
 
 data = dict(samples_per_gpu=16)  # single GPU setting

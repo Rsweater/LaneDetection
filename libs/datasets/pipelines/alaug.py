@@ -13,7 +13,7 @@ from mmdet.datasets.builder import PIPELINES
 
 @PIPELINES.register_module
 class Alaug(object):
-    def __init__(self, transforms, cut_unsorted=False):
+    def __init__(self, transforms, cut_y_duplicated=False, need_resorted=False):
         assert isinstance(transforms, collections.abc.Sequence)
         # init as None
         self.__augmentor = None
@@ -21,7 +21,8 @@ class Alaug(object):
         self.transforms = []
         self.bbox_params = None
         self.keypoint_params = None
-        self.cut_unsorted = cut_unsorted
+        self.cut_y_duplicated = cut_y_duplicated
+        self.need_resorted = need_resorted
 
         for transform in transforms:
             if isinstance(transform, dict):
@@ -83,8 +84,16 @@ class Alaug(object):
     def is_sorted(self, points):
         for lane in points:
             lane_y = np.array([coord[1] for coord in lane])
+            lane_x = np.array([coord[0] for coord in lane])
             # check if y-coordinates are sorted in ascending order
-            if not np.all(lane_y[1:] > lane_y[:-1]):
+            diff = np.diff(lane_y)
+            if not np.all(diff > 0):
+                # Find the indices where the condition is not met
+                non_increasing_indices = np.where(diff <= 0.)[0]
+                for idx in non_increasing_indices:
+                    print(f"Element at index {idx + 1} is not strictly greater than the previous element:")
+                    print(f"Previous coordinate: ({lane_x[idx]}, {lane_y[idx]})")
+                    print(f"Current coordinate: ({lane_x[idx + 1]}, {lane_y[idx + 1]})")
                 return False
         return True
 
@@ -105,17 +114,19 @@ class Alaug(object):
     def __call__(self, data):
         data_org = copy.deepcopy(data)
         for i in range(30):
+            # Duplicate points exist for VIL100
+            # print(f"begin augmentation {i+1} {self.is_sorted(data['gt_points'])}")
             data_aug = self.aug(data)
+            data = copy.deepcopy(data_org)
+            if self.cut_y_duplicated: 
+                # avoid lane sampling errors for sharp curve lanes
+                data_aug["gt_points"] = [list({point[1]: point for point in lane}.values()) for lane in data_aug["gt_points"]]
+            if self.need_resorted: # augmentation may change the order of lanes
+                # sort lanes by their y-coordinates in ascending order for interpolation
+                data_aug["gt_points"] = [sorted(lane, key=lambda x: x[1]) for lane in data_aug["gt_points"]]
             if self.is_sorted(data_aug["gt_points"]):
                 return data_aug
-            data = copy.deepcopy(data_org)
-        if self.cut_unsorted:
-            # avoid lane sampling errors for sharp curve lanes
-            data_aug["gt_points"] = self.cut_unsorted_points(
-                data_aug["gt_points"]
-            )
-            return data_aug
-        raise ValueError("lane augmentation failed 30 times. modifying GT..")
+        raise ValueError("Cannot find a valid result of augmentation!")
 
     def aug(self, data):
         if self.__augmentor is None:
