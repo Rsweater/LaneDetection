@@ -11,7 +11,7 @@ crop_bbox = [0, 160, 1280, 720]
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
 )
-compose_cfg = dict(bboxes=False, keypoints=True, masks=True)
+compose_cfg = dict(keypoints=True, masks=True)
 
 # data pipeline settings
 train_al_pipeline = [
@@ -118,7 +118,7 @@ val_pipeline = [
 
 data = dict(
     samples_per_gpu=32,  # medium
-    workers_per_gpu=2,
+    workers_per_gpu=8,
     train=dict(
         type=dataset_type,
         data_root=data_root,

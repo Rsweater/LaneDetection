@@ -36,8 +36,6 @@ class TuSimpleDataset(CustomDataset):
             pipeline (List[mmcv.utils.config.ConfigDict]):
                 Data transformation pipeline configs.
             test_mode (bool): Test flag.
-            y_step (int): Row interval (in the original image's y scale)
-                to sample the predicted lanes for evaluation.
         """
         self.img_prefix = data_root
         self.data_list = data_list
@@ -146,7 +144,7 @@ class TuSimpleDataset(CustomDataset):
             numpy.ndarray: segmentation mask.
         """
         mask_path = self.img_infos[idx]["raw_file"].replace('clips',
-                                                     'seg_label_6')[:-3] + 'png'
+                                                     'seg_label')[:-3] + 'png'
         maskname = str(Path(self.img_prefix).joinpath(mask_path))
         mask = np.array(Image.open(maskname))
         return mask

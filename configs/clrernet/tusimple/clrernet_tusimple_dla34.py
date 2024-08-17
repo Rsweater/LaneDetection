@@ -20,7 +20,7 @@ cfg_name = "clrernet_tusimple_r18.py"
 
 model = dict(
     type="CLRerNet",
-        backbone=dict(
+    backbone=dict(
         type='ResNet',
         depth=18,
         num_stages=4,
@@ -74,7 +74,7 @@ model = dict(
 )
 
 total_epochs = 150
-evaluation = dict(start=20, interval=5)
+evaluation = dict(start=3, interval=3)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
 

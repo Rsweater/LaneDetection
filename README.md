@@ -1,6 +1,6 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/clrernet-improving-confidence-of-lane/lane-detection-on-culane)](https://paperswithcode.com/sota/lane-detection-on-culane?p=clrernet-improving-confidence-of-lane)
 
-# LaneDetectionCLRerNet Official Implementatio
+# LaneDetection
 
 LaneDetection is an lane detection library, which is based on  *MMdetection.*
 
