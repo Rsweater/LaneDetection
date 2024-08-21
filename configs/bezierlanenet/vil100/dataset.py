@@ -74,7 +74,7 @@ train_pipeline = [
             "img_shape",
             "gt_points",
             "gt_masks",
-            "lanes",
+            "gt_lanes",
         ],
     ),
 ]

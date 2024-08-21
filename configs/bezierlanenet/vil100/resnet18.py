@@ -15,7 +15,7 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-cfg_name = "bezierlanenet_culane_r18.py"
+cfg_name = "bezierlanenet_vil100_r18.py"
 
 model = dict(
     backbone=dict(
@@ -30,28 +30,31 @@ model = dict(
         norm_eval=False,
         style='pytorch',
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
-     # training and testing settings
+    lane_head=dict(
+        loss_seg=dict(
+            loss_weight=0.75,
+            num_classes=9,  # 8 lane + 1 background
+        )
+    ),
     test_cfg=dict(
         # dataset info
-        # dataset="tusimple",
-        ori_img_w=1640,
-        ori_img_h=590,
-        cut_height=270,
+        ori_img_w="no fixed size",
+        ori_img_h="no fixed size",
+        cut_height="no fixed size",
         # inference settings
-        conf_threshold=0.95,
-        window_size=9,
-        max_num_lanes=4,
+        conf_threshold=0.4,
+        window_size=5,
+        max_num_lanes=8,
         num_sample_points=50,
     ),
 )
 
-custom_hooks = [dict(type="ExpMomentumEMAHook", momentum=0.0001, priority=5)]
-
-total_epochs = 36
-evaluation = dict(start=3, interval=3)
+total_epochs = 400
+evaluation = dict(start=10, interval=10)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
-data = dict(samples_per_gpu=24)  # single GPU setting
+
+data = dict(samples_per_gpu=48, workers_per_gpu=4)  # single GPU setting
 
 # optimizer
 optimizer = dict(
@@ -75,6 +78,7 @@ lr_config = dict(
 )
 
 log_config = dict(
+    interval=10,
     hooks=[
         dict(type="TextLoggerHook"),
         dict(type="TensorboardLoggerHookEpoch"),
