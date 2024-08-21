@@ -2,23 +2,116 @@
 
 # LaneDetection
 
-LaneDetection is an lane detection library, which is based on  *MMdetection.*
+LaneDetection is an lane detection library, which is based on  *MMdetection.*  为了增加可读性，我们的dataset结构、data读取与增强、标签转换、分割标签、模型等等均采用了统一的代码风格。尽量的进行mmdetection各个组件的解耦，尽可能的精简代码，增加可读性。使用Pillow的P模式进行分割图像的存放，以便直观的观察到分割结果。
 
 ## What's New
 
 ## Method
 
+<table align="center">
+  <tbody>
+    <tr align="center" valign="bottom">
+      <td>
+        <b>模型</b>
+      </td>
+      <td colspan="2">
+        <b>框架组件</b>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td>
+        <ul>
+        <details><summary><b>Segmentation based</b></summary>
+          <ul>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v3/configs/resa">RESA</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/main/configs/scnn">SCNN</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v3/configs/erfnet">ERFNet</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v3/configs/deeplabv3p">DeepLabV3+</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v4/configs/rtformer">RTFormer</a></li>
+          </ul>
+        </details>
+        <details><summary><b>Detection based</b></summary>
+          <ul>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v6/configs/ufld">UFLD</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v6/configs/condlane">CondLane</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v6/configs/clrnet">CLRNet</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/tree/v6/configs/adnet">ADNet</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v6/pplanedet/model/losses/line_iou.py">CLRerNet</a></li>
+          </ul>
+        </details>
+      </td>
+      <td>
+        <details><summary><b>Backbones</b></summary>
+          <ul>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v3/pplanedet/model/backbones/resnet.py">ResNet</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v4/pplanedet/model/backbones/convnext.py">ConvNext</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v4/pplanedet/model/backbones/mobilenet.py">MobileNetV3</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v4/pplanedet/model/backbones/cspresnet.py">CSPResNet</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v5/pplanedet/model/backbones/shufflenet.py">ShuffleNet</a></li>
+          </ul>
+        </details>
+        <details><summary><b>Necks</b></summary>
+          <ul>
+            <li><a href="url">FPN</a></li>
+            <li><a href="url">Feature Flip Fusion</a></li>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v5/pplanedet/model/necks/csprepbifpn.py">CSPRepbifpn</a></li>
+          </ul>
+        </details>
+        <details><summary><b>Losses</b></summary>
+          <ul>
+            <li><a href="url">Binary CE Loss</a></li>
+            <li><a href="url">Cross Entropy Loss</a></li>
+            <li><a href="url">Focal Loss</a></li>
+            <li><a href="url">MultiClassFocal Loss</a></li>
+            <li><a href="url">RegL1KpLoss</a></li>
+          </ul>
+        </details>
+        <details><summary><b>Metrics</b></summary>
+          <ul>
+            <li>Accuracy</li>
+            <li>FP</li>
+            <li>FN</li>
+	    <li>F1@0.1</li>
+	    <li>F1@0.5</li>
+	    <li>F1@0.75</li>
+          </ul>  
+        </details>
+      </td>
+      <td>
+        <details><summary><b>Datasets</b></summary>
+          <ul>
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v2/pplanedet/datasets/tusimple.py">Tusimple</a></li>  
+            <li><a href="https://github.com/zkyseu/PPlanedet/blob/v2/pplanedet/datasets/culane.py">CULane</a></li>
+          </ul>
+        </details>
+        <details><summary><b>Label transformer</b></summary>
+          <ul>
+            <li>RandomLROffsetLABEL</li>  
+          </ul>
+        </details>
+      </td>
+    </tr>
+</td>
+    </tr>
+  </tbody>
+</table>
+
 ## Performance
+
 
 ## Install
 
 ```bash
+# Create&Activate environment
 conda create -n LaneDetection python=3.8 -y
+conda activate LaneDetection
+# Install dependencies
 conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch-lts -c nvidia
 pip install -U openmim
 mim install mmcv-full==1.5.1
 pip install mmdet==2.25.3
 pip install -r requirements.txt
+# complie ops
 cd libs/models/layers/nms/ # 确保本地cuda版本与conda中一致
 python setup.py install
 cd ../../../../ # TODO:
