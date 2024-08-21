@@ -9,7 +9,7 @@ custom_imports = dict(
     imports=[
         "libs.models",
         "libs.datasets",
-        "libs.core.bbox",
+        "libs.core.lane",
         "libs.core.anchor",
         "libs.core.hook",
     ],

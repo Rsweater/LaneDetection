@@ -159,23 +159,23 @@ class TuSimpleDataset(CustomDataset):
             list: class id (=1) for lane instances.
             list: instance id (start from 1) for lane instances.
         """
-        # lanes: [[(x_00,y0), (x_01,y1), ...], [(x_10,y0), (x_11,y1), ...], ...]
-        lanes = [
-            [(x, y-offset_y) for (x, y) in zip(lane, 
-                self.img_infos[idx]['h_samples']) if x >= 0
-            ] for lane in self.img_infos[idx]['lanes']
-        ]  
-        # Never mind that, the label of the tusimple dataset
-        # remove duplicated points in each lane
-        # lanes = [list(set(lane)) for lane in lanes]  
-        # # remove lanes with less than 2 points 
-        # lanes = [lane for lane in lanes if len(lane) > 1] 
-        # # sort lanes by their y-coordinates in ascending order for interpolation
-        # lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
-        id_classes = [1 for i in range(len(lanes))] # TODO： 根据slope划分
-        id_instances = [i + 1 for i in range(len(lanes))]
-        return lanes, id_classes, id_instances
-
+        shapes = []
+        for lane in self.img_infos[idx]['lanes']:
+            coords = []
+            for coord_x, coord_y in sorted(
+                zip(lane, self.img_infos[idx]['h_samples']), 
+                key=lambda x: x[1], reverse=True
+                ): # TODO: Fix Bug sorted() not working correctly
+                if coord_x >= 0:
+                    coord_x = float(coord_x)
+                    coord_y = float(coord_y) - offset_y
+                    coords.append((coord_x, coord_y))
+            if len(coords) > 3:
+                shapes.append(coords)
+        id_classes = [1 for i in range(len(shapes))]
+        id_instances = [i + 1 for i in range(len(shapes))]
+        return shapes, id_classes, id_instances
+        
     def evaluate(self, results, metric="F1", logger=None):
         """
         Write prediction to txt files for evaluation and

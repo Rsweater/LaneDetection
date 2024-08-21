@@ -1,17 +1,12 @@
-"""
-    config file of the CULane dataset for CondLaneNet
-    Adapted from:
-    https://github.com/aliyun/conditional-lane-detection/blob/master/configs/condlanenet/curvelanes/curvelanes_medium_train.py
-"""
-
-dataset_type = "TuSimpleDataset"
-data_root = "dataset/tusimple"
-img_scale = (800, 320)
-crop_bbox = [0, 160, 1280, 720]
+dataset_type = "CulaneDataset"
+data_root = "dataset/culane"
+crop_bbox = [0, 270, 1640, 590]
+img_scale = (800, 288)
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
 )
 compose_cfg = dict(keypoints=True, masks=True)
+
 
 # data pipeline settings
 train_al_pipeline = [
@@ -78,9 +73,9 @@ train_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        keys=["img"],
-        max_lanes=6,
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",
@@ -92,7 +87,7 @@ train_pipeline = [
             "img_shape",
             "gt_points",
             "gt_masks",
-            "lanes",
+            "gt_lanes",
         ],
     ),
 ]
@@ -103,9 +98,9 @@ val_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        keys=["img"],
-        max_lanes=6,
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",
@@ -116,31 +111,30 @@ val_pipeline = [
     ),
 ]
 
+
 data = dict(
     samples_per_gpu=32,  # medium
     workers_per_gpu=8,
     train=dict(
         type=dataset_type,
         data_root=data_root,
-        data_list=[
-            data_root + '/label_data_0313.json',
-            data_root + '/label_data_0531.json',
-            data_root + '/label_data_0601.json'
-        ],
+        data_list=data_root + "/list/train_gt.txt",
+        diff_file=data_root + "/list/train_diffs.npz",
+        diff_thr=15,
         pipeline=train_pipeline,
         test_mode=False,
     ),
     val=dict(
         type=dataset_type,
         data_root=data_root,
-        data_list=[data_root + '/test_label.json'], # test_baseline,
+        data_list=data_root + "/list/test.txt",
         pipeline=val_pipeline,
         test_mode=True,
     ),
     test=dict(
         type=dataset_type,
         data_root=data_root,
-        data_list=[data_root + '/test_label.json'],
+        data_list=data_root + "/list/test.txt",
         pipeline=val_pipeline,
         test_mode=True,
     ),

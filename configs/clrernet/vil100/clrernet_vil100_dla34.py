@@ -9,7 +9,7 @@ custom_imports = dict(
     imports=[
         "libs.models",
         "libs.datasets",
-        "libs.core.bbox",
+        "libs.core.lane",
         "libs.core.anchor",
         "libs.core.hook",
     ],
@@ -25,7 +25,7 @@ model = dict(
         dla="dla34",
         pretrained=True,
     ),
-    bbox_head=dict(
+    lane_head=dict(
         type="CLRerHead",
         loss_iou=dict(
             type="LaneIoULoss",
@@ -64,7 +64,7 @@ model = dict(
 )
 
 total_epochs = 150
-evaluation = dict(start=20, interval=5)
+evaluation = dict(start=1, interval=1)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
 

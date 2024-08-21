@@ -7,12 +7,10 @@
 dataset_type = "VIL100Dataset"
 data_root = "dataset/vil100"
 img_scale = (800, 320)
-
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
 )
-
-compose_cfg = dict(bboxes=False, keypoints=True, masks=True)
+compose_cfg = dict(keypoints=True, masks=True)
 
 # data pipeline settings
 train_al_pipeline = [

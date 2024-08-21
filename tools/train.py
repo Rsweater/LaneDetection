@@ -9,7 +9,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, "/home/data/cbw/MyNets/LaneDetection_mm")
+sys.path.insert(0, "/data/cbw/lane-detection-pytorch/LaneDetection_mm")
 
 import torch
 from mmcv.runner import get_dist_info, init_dist
@@ -116,8 +116,9 @@ def main():
     elif cfg.get("work_dir", None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+        file_name = cfg.get("cfg_name", args.config)
         cfg.work_dir = osp.join(
-            './work_dirs', osp.splitext(osp.basename(args.config))[0], timestamp
+            './work_dirs', osp.splitext(osp.basename(file_name))[0], timestamp
             )
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from

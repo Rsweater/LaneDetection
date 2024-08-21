@@ -6,7 +6,7 @@
 
 dataset_type = "TuSimpleDataset"
 data_root = "dataset/tusimple"
-img_scale = (800, 320)
+img_scale = (640, 360)
 crop_bbox = [0, 160, 1280, 720]
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
@@ -78,9 +78,9 @@ train_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        keys=["img"],
-        max_lanes=6,
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",
@@ -92,7 +92,7 @@ train_pipeline = [
             "img_shape",
             "gt_points",
             "gt_masks",
-            "lanes",
+            "gt_lanes",
         ],
     ),
 ]
@@ -103,9 +103,9 @@ val_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        keys=["img"],
-        max_lanes=6,
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",

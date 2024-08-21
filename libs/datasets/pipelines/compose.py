@@ -20,8 +20,8 @@ class Compose(object):
                 if transform["type"] == "albumentation":
                     transform = Alaug(
                         transform["pipelines"],
-                        cut_y_duplicated=transform["cut_y_duplicated"],
-                        need_resorted = transform["need_resorted"],
+                        cut_y_duplicated=transform["cut_y_duplicated"] if "cut_y_duplicated" in transform else False,
+                        need_resorted = transform["need_resorted"] if "need_resorted" in transform else False,
                     )
                 else:
                     transform = build_from_cfg(transform, PIPELINES)
