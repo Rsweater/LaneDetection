@@ -98,7 +98,7 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type="albumentation", pipelines=val_al_pipeline, cut_unsorted=False, 
+    dict(type="albumentation", pipelines=val_al_pipeline,
             cut_y_duplicated=True, need_resorted=True),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),

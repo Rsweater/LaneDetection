@@ -32,7 +32,7 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
     bbox_head=dict(
         type="CLRerHead",
-        loss_cls=dict(type="KorniaFocalLoss", alpha=0.25, gamma=2, loss_weight=6.0),
+        loss_cls=dict(type="KorniaFocalLoss", alpha=0.25, gamma=2, loss_weight=6.0, reduction="mean"),
         loss_bbox=dict(type="SmoothL1Loss", reduction="none", loss_weight=0.5),
         loss_iou=dict(
             type="LaneIoULoss",
