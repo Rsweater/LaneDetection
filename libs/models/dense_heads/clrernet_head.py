@@ -315,8 +315,7 @@ class CLRerHead(nn.Module):
                 cls_target[matched_row_inds] = 1
                 cls_loss = (
                     cls_loss
-                    + self.loss_cls(cls_pred, cls_target).sum()
-                    / target.shape[0]
+                    + self.loss_cls(cls_pred, cls_target)
                 )
 
                 # regression targets -> [start_y, start_x, theta]

@@ -81,14 +81,15 @@ def sample_lane(points, sample_ys, img_w, extrapolate=True):
     No and Ni: number of x coordinates outside and inside image.
     """
     points = np.array(points)
-    if not np.all(points[1:, 1] > points[:-1, 1]):
+    points = points[points[:, 1].argsort()[::-1]]  # sort points by y in descending order
+    if not np.all(points[1:, 1] < points[:-1, 1]):
         print(points)
         raise Exception("Annotaion points have to be sorted")
     x, y = points[:, 0], points[:, 1]
 
     # interpolate points inside domain
     assert len(points) > 1
-    interp = InterpolatedUnivariateSpline(y, x, k=min(3, len(points) - 1))
+    interp = InterpolatedUnivariateSpline(y[::-1], x[::-1], k=min(3, len(points) - 1))
     domain_min_y = y.min()
     domain_max_y = y.max()
     mask_inside_domain = (sample_ys >= domain_min_y) & (sample_ys <= domain_max_y)

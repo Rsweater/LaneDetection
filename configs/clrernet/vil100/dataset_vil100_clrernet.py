@@ -107,7 +107,7 @@ val_pipeline = [
 
 data = dict(
     samples_per_gpu=32,  # medium
-    workers_per_gpu=2,
+    workers_per_gpu=8,
     train=dict(
         type=dataset_type,
         data_root=data_root,

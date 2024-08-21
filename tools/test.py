@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, "/data/cbw/lane-detection-pytorch/LaneDetection_mm")
+sys.path.insert(0, "/home/data/cbw/MyNets/Nets/LaneDetection_mm")
 
 # suppress mmcv v2.0.0 announcement
 warnings.filterwarnings('ignore', module='mmcv')
