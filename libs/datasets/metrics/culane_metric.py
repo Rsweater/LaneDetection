@@ -15,8 +15,8 @@ from scipy.optimize import linear_sum_assignment
 
 from mmcv.utils import print_log
 
-from libs.utils.visualizer import draw_lane
-from libs.utils.lane_utils import interp
+from libs.core.lane.visualizer import draw_lane
+from libs.core.lane.lane_utils import interp
 
 
 def discrete_cross_iou(xs, ys, width=30, img_shape=(590, 1640, 3)):

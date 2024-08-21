@@ -6,7 +6,7 @@
 
 dataset_type = "VIL100Dataset"
 data_root = "dataset/vil100"
-img_scale = (800, 320)
+img_scale = (640, 360)
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
 )
@@ -60,10 +60,9 @@ train_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        max_lanes=6,
-        # extrapolate=False,
-        keys=["img"],
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",
@@ -86,10 +85,9 @@ val_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
-        max_lanes=6,
-        # extrapolate=False,
-        keys=["img"],
+        type="CollectBeizerInfo",
+        keys=["img"], interpolate=False, fix_endpoints=False,
+        order=3, norm=True, num_sample_points=100,
         meta_keys=[
             "filename",
             "sub_img_name",
@@ -107,12 +105,11 @@ val_pipeline = [
 
 data = dict(
     samples_per_gpu=32,  # medium
-    workers_per_gpu=8,
+    workers_per_gpu=2,
     train=dict(
         type=dataset_type,
         data_root=data_root,
         data_list=data_root + "/data/train.txt",
-        diff_thr=0,
         pipeline=train_pipeline,
         test_mode=False,
     ),

@@ -5,7 +5,7 @@ img_scale = (800, 320)
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False
 )
-compose_cfg = dict(bboxes=False, keypoints=True, masks=True)
+compose_cfg = dict(keypoints=True, masks=True)
 
 
 # data pipeline settings
@@ -68,8 +68,8 @@ val_al_pipeline = [
 
 train_pipeline = [
     dict(
-        type="albumentation", pipelines=train_al_pipeline, cut_unsorted=False
-    ),
+        type="albumentation", pipelines=train_al_pipeline, 
+            cut_y_duplicated=True, need_resorted=True),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
@@ -92,7 +92,8 @@ train_pipeline = [
 ]
 
 val_pipeline = [
-    dict(type="albumentation", pipelines=val_al_pipeline, cut_unsorted=False),
+    dict(type="albumentation", pipelines=val_al_pipeline,
+            cut_y_duplicated=True, need_resorted=True),
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(

@@ -14,7 +14,7 @@ from mmdet.models.builder import HEADS
 from nms import nms
 
 from libs.models.dense_heads.seg_decoder import SegDecoder
-from libs.utils.lane_utils import Lane
+from libs.core.lane.lane_utils import Lane
 
 
 @HEADS.register_module

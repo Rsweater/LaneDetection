@@ -12,19 +12,16 @@ LaneDetection is an lane detection library, which is based on  *MMdetection.*
 
 ## Install
 
-Docker environment is recommended for installation:
-
 ```bash
 conda create -n LaneDetection python=3.8 -y
-# TODO: 测试25.3 1.5.1版本是否有share冲突
-pip install torch==1.12.1+cu116 torchvision==0.13.1 torchaudio -f https://download.pytorch.org/whl/torch_stable.html
+conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch-lts -c nvidia
 pip install -U openmim
-mim install mmcv-full==1.7.0
-pip install mmdet==2.28.0
+mim install mmcv-full==1.5.1
+pip install mmdet==2.25.3
 pip install -r requirements.txt
 cd libs/models/layers/nms/ # 确保本地cuda版本与conda中一致
 python setup.py install
-cd ../../../../
+cd ../../../../ # TODO:
 ```
 
 See [Installation Tips](docs/INSTALL.md) for more details.

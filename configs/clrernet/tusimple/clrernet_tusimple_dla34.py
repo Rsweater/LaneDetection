@@ -9,7 +9,7 @@ custom_imports = dict(
     imports=[
         "libs.models",
         "libs.datasets",
-        "libs.core.bbox",
+        "libs.core.lane",
         "libs.core.anchor",
         "libs.core.hook",
     ],
@@ -30,7 +30,7 @@ model = dict(
         norm_eval=False,
         style='pytorch',
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
-    bbox_head=dict(
+    lane_head=dict(
         type="CLRerHead",
         loss_cls=dict(type="KorniaFocalLoss", alpha=0.25, gamma=2, loss_weight=6.0, reduction="mean"),
         loss_bbox=dict(type="SmoothL1Loss", reduction="none", loss_weight=0.5),

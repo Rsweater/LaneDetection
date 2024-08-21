@@ -9,7 +9,7 @@ custom_imports = dict(
     imports=[
         "libs.models",
         "libs.datasets",
-        "libs.core.bbox",
+        "libs.core.lane",
         "libs.core.anchor",
         "libs.core.hook",
     ],
@@ -25,7 +25,7 @@ model = dict(
         dla="dla34",
         pretrained=True,
     ),
-    bbox_head=dict(
+    lane_head=dict(
         type="CLRerHead",
         loss_iou=dict(
             type="LaneIoULoss",
