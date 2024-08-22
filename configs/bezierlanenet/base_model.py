@@ -31,7 +31,7 @@ model = dict(
         ),
         loss_seg=dict(
             type="CLRNetSegLoss",
-            loss_weight=1.0,
+            loss_weight=0.75,
             num_classes=5,  # 4 lanes + 1 background
             ignore_label=255,
             bg_weight=0.4,

@@ -30,6 +30,17 @@ model = dict(
         norm_eval=False,
         style='pytorch',
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
+    lane_head=dict(
+        loss_cls=dict(
+            loss_weight=2.0,
+        ),
+        loss_dist=dict(
+            loss_weight=3.0,
+        ),
+        loss_seg=dict(
+            loss_weight=0.50,
+        ),
+    ),
      # training and testing settings
     test_cfg=dict(
         # dataset info
@@ -51,12 +62,12 @@ total_epochs = 36
 evaluation = dict(start=3, interval=3)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
-data = dict(samples_per_gpu=24)  # single GPU setting
+data = dict(samples_per_gpu=32)  # single GPU setting
 
 # optimizer
 optimizer = dict(
     type='Adam',
-    lr=1e-3,
+    lr=3e-3,
     paramwise_cfg=dict(
         custom_keys={
             'conv_offset': dict(lr_mult=0.1),
