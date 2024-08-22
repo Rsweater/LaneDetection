@@ -19,17 +19,22 @@ cfg_name = "bezierlanenet_culane_dla34.py"
 
 model = dict(
     backbone=dict(
-        type='ResNet',
-        depth=18,
-        num_stages=3,
-        strides=(1, 2, 2),
-        dilations=(1, 1, 1),
-        out_indices=(2,),
-        frozen_stages=-1,
-        norm_cfg=dict(type='BN', requires_grad=True),
-        norm_eval=False,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
+        type="DLANet",
+        dla="dla34",
+        pretrained=True,
+        out_indices=(4,) # c=256, [16, 32, 64, 128, 256, 512]
+    ),
+    lane_head=dict(
+        loss_cls=dict(
+            loss_weight=2.0,
+        ),
+        loss_dist=dict(
+            loss_weight=3.0,
+        ),
+        loss_seg=dict(
+            loss_weight=0.50,
+        ),
+    ),
      # training and testing settings
     test_cfg=dict(
         # dataset info
@@ -51,12 +56,12 @@ total_epochs = 36
 evaluation = dict(start=3, interval=3)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
-data = dict(samples_per_gpu=24)  # single GPU setting
+data = dict(samples_per_gpu=32)  # single GPU setting
 
 # optimizer
 optimizer = dict(
     type='Adam',
-    lr=1e-3,
+    lr=3e-3,
     paramwise_cfg=dict(
         custom_keys={
             'conv_offset': dict(lr_mult=0.1),
@@ -80,3 +85,4 @@ log_config = dict(
         dict(type="TensorboardLoggerHookEpoch"),
     ]
 )
+find_unused_parameters=True
