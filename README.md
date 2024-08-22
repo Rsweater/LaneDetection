@@ -96,9 +96,6 @@ LaneDetection is an lane detection library, which is based on  *MMdetection.*  ä
   </tbody>
 </table>
 
-## Performance
-
-
 ## Install
 
 ```bash
