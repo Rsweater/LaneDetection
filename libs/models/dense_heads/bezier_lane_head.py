@@ -93,6 +93,45 @@ class BezierLaneHead(nn.Module):
             """Initialize weights of the head."""
             pass
 
+    def forward_train(self, x, f, img_metas, **kwargs):
+        """Forward function for training mode.
+        Args:
+            x (list[Tensor]): Features from backbone.
+            img_metas (list[dict]): Meta information of each image, e.g.,
+                image size, scaling factor, etc.
+        Returns:
+            dict[str, Tensor]: A dictionary of loss components.
+        """
+        predictions = self(x)
+        out_dict = {"predictions": predictions}
+        if self.loss_seg:
+            out_dict["seg"] = self.forward_seg(f)
+
+        losses = self.loss(out_dict, img_metas)
+        return losses
+    
+    def forward_seg(self, x):
+        """Forward function for training mode.
+        Args:
+            x (list[torch.tensor]): Features from backbone.
+        Returns:
+            torch.tensor: segmentation maps, shape (B, C, H, W), where
+            B: batch size, C: segmentation channels, H and W: the largest feature's spatial shape.
+        """
+        x = self.seg_conv(x)
+        x = self.seg_conv_out(x)
+        return x
+    
+    def simple_test(self, feats):
+        """Test without augmentation."""
+        pred_dict = self(feats)
+        lanes, scores = self.get_lanes(pred_dict, as_lane=self.test_cfg.as_lane)
+        result_dict = {
+            "lanes": lanes,
+            "scores": scores,
+        }
+        return result_dict
+
     def forward(self, x, **kwargs):
         """Forward function for inference mode.
         Args:
@@ -198,35 +237,6 @@ class BezierLaneHead(nn.Module):
             loss_dict["loss_seg"] = self.loss_seg(pred_masks, tgt_masks)
 
         return loss_dict
-
-    def forward_train(self, x, f, img_metas, **kwargs):
-        """Forward function for training mode.
-        Args:
-            x (list[Tensor]): Features from backbone.
-            img_metas (list[dict]): Meta information of each image, e.g.,
-                image size, scaling factor, etc.
-        Returns:
-            dict[str, Tensor]: A dictionary of loss components.
-        """
-        predictions = self(x)
-        out_dict = {"predictions": predictions}
-        if self.loss_seg:
-            out_dict["seg"] = self.forward_seg(f)
-
-        losses = self.loss(out_dict, img_metas)
-        return losses
-    
-    def forward_seg(self, x):
-        """Forward function for training mode.
-        Args:
-            x (list[torch.tensor]): Features from backbone.
-        Returns:
-            torch.tensor: segmentation maps, shape (B, C, H, W), where
-            B: batch size, C: segmentation channels, H and W: the largest feature's spatial shape.
-        """
-        x = self.seg_conv(x)
-        x = self.seg_conv_out(x)
-        return x
 
     def get_lanes(self, pred_dict, as_lane=True):
         """Get lanes from prediction results.
@@ -361,13 +371,3 @@ class BezierLaneHead(nn.Module):
                     lane = points
                 lanes.append(lane)
         return lanes
-
-    def simple_test(self, feats):
-        """Test without augmentation."""
-        pred_dict = self(feats)
-        lanes, scores = self.get_lanes(pred_dict, as_lane=self.test_cfg.as_lane)
-        result_dict = {
-            "lanes": lanes,
-            "scores": scores,
-        }
-        return result_dict

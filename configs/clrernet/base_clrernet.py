@@ -7,7 +7,7 @@ model = dict(
         out_channels=64,
         num_outs=3,
     ),
-    bbox_head=dict(
+    lane_head=dict(
         type="CLRerHead",
         anchor_generator=dict(
             type="CLRerNetAnchorGenerator",

@@ -8,7 +8,7 @@ class CLRerNet(SingleStageDetector):
         self,
         backbone,
         neck,
-        bbox_head,
+        lane_head,
         train_cfg=None,
         test_cfg=None,
         pretrained=None,
@@ -16,13 +16,13 @@ class CLRerNet(SingleStageDetector):
     ):
         """CLRerNet detector."""
         super(CLRerNet, self).__init__(
-            backbone,
-            neck,
-            bbox_head,
-            train_cfg,
-            test_cfg,
-            pretrained,
-            init_cfg,
+            backbone=backbone, 
+            neck=neck, 
+            bbox_head=lane_head,
+            train_cfg=train_cfg, 
+            test_cfg=test_cfg, 
+            pretrained=pretrained, 
+            init_cfg=init_cfg
         )
 
     def forward_train(self, img, img_metas, **kwargs):
