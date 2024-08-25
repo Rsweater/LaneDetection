@@ -262,7 +262,6 @@ class CollectCLRNet(Collect):
             lanes[lane_idx, 6 : 6 + len(all_xs)] = all_xs  # xs, absolute
 
         results["gt_lanes"] = to_tensor(lanes)
-        results["start_conf"] = to_tensor(lanes[:, 1])
         return results
 
     def __call__(self, results):

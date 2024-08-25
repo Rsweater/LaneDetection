@@ -7,7 +7,7 @@ checkpoints
 weights
 work_dirs
 dataset
-projects
+# projects
 *.csv
 *.zip
 *.pyc
