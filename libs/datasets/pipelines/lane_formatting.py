@@ -261,13 +261,14 @@ class CollectCLRNet(Collect):
             lanes[lane_idx, 5] = len(xs_inside_image)  # length
             lanes[lane_idx, 6 : 6 + len(all_xs)] = all_xs  # xs, absolute
 
-        results["lanes"] = to_tensor(lanes)
+        results["gt_lanes"] = to_tensor(lanes)
+        results["start_conf"] = to_tensor(lanes[:, 1])
         return results
 
     def __call__(self, results):
         data = {}
         img_meta = {}
-        if "lanes" in self.meta_keys:  # training
+        if "gt_lanes" in self.meta_keys:  # training
             results = self.convert_targets(results)
         for key in self.meta_keys:
             img_meta[key] = results[key]
