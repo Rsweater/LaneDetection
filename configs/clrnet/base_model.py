@@ -44,9 +44,9 @@ model = dict(
             type="DynamicTopkAssigner",
             max_topk=4,
             min_topk=1,
-            cost_combination=1,
+            cost_combination=0,
             cls_cost=dict(type="FocalCost", weight=1.0),
-            reg_cost=dict(type="DistanceCost", weight=0.0),
+            reg_cost=dict(type="DistanceCost", weight=3.0),
             iou_dynamick=dict(
                 type="CLRNetIoUCost",
                 lane_width=7.5 / 800,

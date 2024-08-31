@@ -219,13 +219,13 @@ class DynamicTopkAssigner(BaseAssigner):
         pred_xs = predictions["xs"].detach().clone()  # relative
         target_xs = targets[:, 6:] / (img_w - 1)  # abs -> relative
 
-        iou_dynamick = self.iou_dynamick(pred_xs, target_xs, eval_shape)
-
         if self.cost_combination == 0:  # CLRNet
+            iou_dynamick = self.iou_dynamick(pred_xs, target_xs)
             cost = self._clrnet_cost(
                 predictions, targets, pred_xs, target_xs, img_w, img_h
             )
         elif self.cost_combination == 1:  # CLRerNet
+            iou_dynamick = self.iou_dynamick(pred_xs, target_xs, eval_shape)
             cost = self._clrernet_cost(
                 predictions, targets, pred_xs, target_xs, eval_shape
             )

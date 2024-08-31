@@ -9,7 +9,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, "/home/data/cbw/MyNets/Nets/LaneDetection_mm")
+sys.path.insert(0, "/data/cbw/LaneDetection_mm")
 
 import torch
 from mmcv.runner import get_dist_info, init_dist

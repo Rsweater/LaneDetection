@@ -292,7 +292,7 @@ class CLRerHead(nn.Module):
                     k: v[b] for k, v in out_dict["predictions"][stage].items()
                 }
                 cls_pred = pred_dict["cls_logits"]
-                target = img_meta["lanes"].clone().to(device)  # [n_lanes, 78]
+                target = img_meta["gt_lanes"].clone().to(device)  # [n_lanes, 78]
                 target = target[target[:, 1] == 1]
                 cls_target = cls_pred.new_zeros(cls_pred.shape[0]).long()
 
@@ -356,11 +356,17 @@ class CLRerHead(nn.Module):
                     + self.loss_bbox(reg_yxtl, target_yxtl).mean()
                 )
 
-                iou_loss = iou_loss + self.loss_iou(
-                    pred_xs * (self.img_w - 1) / self.img_w,
-                    target_xs / self.img_w,
-                    img_meta["eval_shape"],
-                )
+                if self.train_cfg.assigner.cost_combination == 0:
+                    iou_loss = iou_loss + self.loss_iou(
+                        pred_xs * (self.img_w - 1) / self.img_w,
+                        target_xs / self.img_w,
+                    )
+                elif self.train_cfg.assigner.cost_combination == 1:
+                    iou_loss = iou_loss + self.loss_iou(
+                        pred_xs * (self.img_w - 1) / self.img_w,
+                        target_xs / self.img_w,
+                        img_meta["eval_shape"],
+                    )
 
         cls_loss /= batch_size * self.refine_layers
 
