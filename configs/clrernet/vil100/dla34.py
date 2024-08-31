@@ -1,6 +1,5 @@
 _base_ = [
-    "../base_clrernet.py",
-    "dataset_vil100_clrernet.py",
+    "../base_model.py", "dataset.py",
     "../../_base_/default_runtime.py",
 ]
 

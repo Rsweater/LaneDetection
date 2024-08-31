@@ -1,6 +1,5 @@
 _base_ = [
-    "../base_clrernet.py",
-    "dataset_curvelanes_clrernet.py",
+    "../base_model.py", "dataset.py",
     "../../_base_/default_runtime.py",
 ]
 
@@ -16,7 +15,7 @@ custom_imports = dict(
     allow_failed_imports=False,
 )
 
-cfg_name = "clrernet_curvelanes_dla34.py"
+cfg_name = "clrnet_curvelanes_dla34.py"
 
 model = dict(
     type="CLRerNet",
@@ -41,16 +40,12 @@ model = dict(
     train_cfg=dict(
         assigner=dict(
             iou_dynamick=dict(
-                type="LaneIoUCost",
+                type="CLRNetIoUCost",
                 lane_width=2.5 / 224,
-                use_pred_start_end=False,
-                use_giou=True,
             ),
             iou_cost=dict(
-                type="LaneIoUCost",
+                type="CLRNetIoUCost",
                 lane_width=10 / 224,
-                use_pred_start_end=True,
-                use_giou=True,
             ),
         )
     ),

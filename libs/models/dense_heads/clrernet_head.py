@@ -26,6 +26,7 @@ class CLRerHead(nn.Module):
         img_h=320,
         prior_feat_channels=64,
         fc_hidden_dim=64,
+        seg_channel=64+64+64,
         num_fc=2,
         refine_layers=3,
         sample_points=36,
@@ -108,9 +109,8 @@ class CLRerHead(nn.Module):
             self.seg_decoder = SegDecoder(
                 self.img_h,
                 self.img_w,
+                seg_channel,
                 loss_seg.num_classes,
-                self.prior_feat_channels,
-                self.refine_layers,
             )
 
         self.init_weights()

@@ -204,7 +204,7 @@ class LaneATTHead(nn.Module):
         }
         return result_dict
 
-    def forward(self, x):
+    def forward(self, x, param):
         """Take a feature map as input and output the predicted lanes and their probabilities.
         Args:
             x (Tensor): (B, C, H, W)
@@ -238,7 +238,9 @@ class LaneATTHead(nn.Module):
         # (B*n_anchors, C * H) --> (B, n_anchors, C*H)
         proposal_feats = proposal_feats.reshape(batch_size, len(self.anchors), -1)
         # (B, n_anchors, n_anchors) @ (B, n_anchors, C*fH) --> (B, n_anchors, C*fH)
-        attention_features = torch.bmm(attention_matrix, proposal_feats)
+        attention_features = torch.bmm(
+            torch.transpose(attention, 1, 2), 
+            torch.transpose(proposal_feats, 1, 2)).transpose(1, 2)
         # (B, n_anchors, C*fH) --> (B*n_anchors, C*fH)    paper中的global feature
         attention_features = attention_features.reshape(-1, self.anchor_feat_channels * self.fmap_h)
         # (B, n_anchors, C*H) --> (B*n_anchors, C*H)    paper中的local feature
@@ -272,14 +274,7 @@ class LaneATTHead(nn.Module):
         return pred_dict
     
     def cut_anchor_features(self, features):
-        """
-        Args:
-            features: (B, C=64, H, W)
-        Returns:
-            batch_anchor_features: (B, n_anchors, C, H)
-        """
         batch_size, C = features.shape[:2]
-
         # (B, C, n_anchors, H)
         batch_anchor_features = features[:, :, self.anchor_coord[:, :, 0], self.anchor_coord[:, :, 1]]
         # (n_anchors, H) --> (B, C, n_anchors, H)
@@ -303,36 +298,40 @@ class LaneATTHead(nn.Module):
             dict[str, Tensor]: A dictionary of loss components.
         """
         batch_size = len(img_metas)
-        device = pred_dict["cls_logits"].device
+        device = pred_dict['cls_logits'].device
         cls_loss = torch.tensor(0.0).to(device)
         reg_loss = torch.tensor(0.0).to(device)
-
         # applay nms to remove redundant predictions
         # cls_logits (B, N_keep, )
         # lane_preds (B, N_keep, 3+S)
         # anchors (B, N_keep, 3+S)
-        pred_proposal_list = self.nms(pred_dict, self.train_cfg)
-        for b, img_meta in enumerate(img_metas):
-            cls_pred, lane_preds, anchors = pred_proposal_list[b]
+        pred_proposal_list = self.nms(pred_dict['cls_logits'], pred_dict['lanes_preds'], self.train_cfg)
+
+        for (cls_preds, lane_preds, anchors), img_meta in zip(pred_proposal_list, img_metas):
             gt_lanes = img_meta["gt_lanes"].clone().to(device)  # [n_lanes, 78]
             gt_lanes = gt_lanes[gt_lanes[:, 1] == 1]
-            cls_target = cls_pred.new_zeros(cls_pred.shape[0]).long()
+            cls_targets = cls_preds.new_zeros(cls_preds.shape[0]).long()
 
             if gt_lanes.size(0) == 0:
                 # If there are no targets, all predictions have to be negatives (i.e., 0 confidence)
                 cls_loss = (
-                    cls_loss + self.loss_cls(cls_pred, cls_target).sum()
+                    cls_loss + self.loss_cls(cls_preds, cls_targets).sum()
                 )
                 continue
 
             # Gradients are also not necessary for the positive & negative matching
             with torch.no_grad():
-                positives_mask, invalid_offsets_mask, negatives_mask, target_positives_indices = self.match_proposals_with_targets(
-                    anchors, gt_lanes)
+                (
+                    matched_row_inds,
+                    matched_col_inds,
+                ) = self.assigner.assign(
+                    pred_dict, gt_lanes.clone(), img_meta
+                )
             
             # classification loss
-            cls_target[matched_row_inds, :] = 1
-            cls_loss = self.loss_cls(cls_pred, cls_target)
+            cls_targets[matched_row_inds, :] = 1
+            cls_loss = self.loss_cls(cls_preds, cls_targets)
+            
             # regression loss
             pos_preds = lane_preds[matched_row_inds] # (N_matched, 3+S)
             pos_targets = gt_lanes[matched_col_inds] # (N_matched, 3+S) # TODO: 标签转化；统一变量名
@@ -356,10 +355,7 @@ class LaneATTHead(nn.Module):
                 reg_target = pos_targets[:, 2:]  # (N_pos, 1+S)
                 reg_target[invalid_offsets_mask] = reg_pred[invalid_offsets_mask]
 
-
-    def nms(self, pred_dict, cfg):
-        batch_cls_logits = pred_dict['cls_logits']
-        batch_lanes_preds = pred_dict['lanes_preds']
+    def nms(self, batch_cls_logits, batch_lanes_preds, cfg):
         proposals_list = []
         softmax = nn.Softmax(dim=1)
         for cls_logits, lane_preds in zip(batch_cls_logits, batch_lanes_preds):
