@@ -70,7 +70,7 @@ class DynamicTopkAssigner(BaseAssigner):
         for gt_idx in range(num_gt):
             _, pos_idx = torch.topk(
                 cost[:, gt_idx], k=dynamic_ks[gt_idx].item(), largest=False
-            )
+            ) # default: largest=True,
             matching_matrix[pos_idx, gt_idx] = 1.0
         del topk_ious, dynamic_ks, pos_idx
 
