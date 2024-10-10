@@ -31,7 +31,7 @@ model = dict(
         style='pytorch',
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet18')),
     lane_head=dict(
-        type="BezierLaneHeadV2",
+        # type="BezierLaneHeadV2",
         loss_cls=dict(
             loss_weight=2.0,
         ),

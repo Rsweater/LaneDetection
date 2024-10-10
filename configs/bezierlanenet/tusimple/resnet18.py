@@ -18,7 +18,7 @@ custom_imports = dict(
 cfg_name = "bezierlanenet_tusimple_r18.py"
 
 model = dict(
-    type="BezierLaneNet",
+    # type="BezierLaneNet",
     backbone=dict(
         type='ResNet',
         depth=18,

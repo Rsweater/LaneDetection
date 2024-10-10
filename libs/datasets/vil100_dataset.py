@@ -5,12 +5,11 @@ https://github.com/aliyun/conditional-lane-detection/blob/master/mmdet/datasets/
 import shutil
 from pathlib import Path
 
-import cv2
 import json
 import numpy as np
 from PIL import Image
+from torch.utils.data import Dataset
 from mmdet.datasets.builder import DATASETS
-from mmdet.datasets.custom import CustomDataset
 from mmdet.utils import get_root_logger
 from tqdm import tqdm
 
@@ -19,7 +18,7 @@ from libs.datasets.pipelines import Compose
 
 
 @DATASETS.register_module
-class VIL100Dataset(CustomDataset):
+class VIL100Dataset(Dataset):
     """VIL100 Dataset class."""
 
     def __init__(
@@ -43,7 +42,7 @@ class VIL100Dataset(CustomDataset):
                 to sample the predicted lanes for evaluation.
 
         """
-        # self.logger = get_root_logger(log_level="INFO")
+
         self.img_prefix = data_root
         self.test_mode = test_mode
         # read image list
@@ -99,52 +98,9 @@ class VIL100Dataset(CustomDataset):
     def __len__(self):
         return len(self.img_infos)
 
-    def prepare_train_img(self, idx):
+    def __getitem__(self, idx):
         """
-        Read and process the image through the transform pipeline for training.
-        Args:
-            idx (int): Data index.
-        Returns:
-            dict: Pipeline results containing
-                'img' and 'img_meta' data containers.
-        """
-        img_name = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
-        sub_img_name = self.img_infos[idx]
-        
-        img_tmp = np.array(Image.open(img_name))
-        ori_shape = img_tmp.shape
-        cut_height = img_tmp.shape[0] // 3
-        img = img_tmp[cut_height:, ...]
-        img_shape = crop_shape = img.shape
-
-        kps, id_classes, id_instances = self.load_labels(idx, cut_height)
-        results = dict(
-            filename=img_name,
-            sub_img_name=sub_img_name,
-            img=img,
-            gt_points=kps,
-            id_classes=id_classes,
-            id_instances=id_instances,
-            img_shape=img_shape,
-            ori_shape=ori_shape,
-            eval_shape=(
-                crop_shape[0],
-                crop_shape[1],
-            ),  # Used for LaneIoU calculation. Static for CULane dataset.
-            crop_shape=crop_shape,
-            gt_masks=None,
-        )
-        if self.mask_paths[0]:
-            mask = self.load_mask(idx)
-            mask = mask[cut_height:, :]
-            assert mask.shape[:2] == crop_shape[:2]
-            results["gt_masks"] = mask
-
-        return self.pipeline(results)
-
-    def prepare_test_img(self, idx):
-        """
-        Read and process the image through the transform pipeline for test.
+        Read and process the image through the transform pipeline for training and test.
         Args:
             idx (int): Data index.
         Returns:
@@ -163,14 +119,26 @@ class VIL100Dataset(CustomDataset):
             filename=img_name,
             sub_img_name=sub_img_name,
             img=img,
-            gt_points=[],
-            id_classes=[],
-            id_instances=[],
             img_shape=img_shape,
             ori_shape=ori_shape,
             crop_offset=crop_offset,
             crop_shape=crop_shape,
         )
+        if not self.test_mode:
+            kps, id_classes, id_instances = self.load_labels(idx, cut_height)
+            results["gt_points"] = kps
+            results["id_classes"] = id_classes
+            results["id_instances"] = id_instances
+            results["eval_shape"] = (
+                crop_shape[0],
+                crop_shape[1],
+            )  # Used for LaneIoU calculation for VIL100 dataset.
+            if self.mask_paths[0]:
+                mask = self.load_mask(idx)
+                mask = mask[cut_height:, :]
+                assert mask.shape[:2] == crop_shape[:2]
+                results["gt_masks"] = mask
+
         return self.pipeline(results)
 
     def load_mask(self, idx):
@@ -209,12 +177,11 @@ class VIL100Dataset(CustomDataset):
         # # remove lanes with less than 2 points 
         # lanes = [lane for lane in lanes if len(lane) > 1] 
         # sort lanes by their y-coordinates in ascending order for interpolation
-        lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
-
+        # lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
         id_classes = [1 for i in range(len(lanes))]
         id_instances = [i + 1 for i in range(len(lanes))]
         return lanes, id_classes, id_instances
-
+    
     def evaluate(self, results, metric="F1", logger=None):
         """
         Write prediction to txt files for evaluation and

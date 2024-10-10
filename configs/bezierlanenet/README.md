@@ -10,11 +10,11 @@ This paper presents a novel parametric curve-based method for lane detection in 
 
 ### Results on CuLane
 
-| Architecture | Backbone | F1@50 | F1@75 | mF1 | Config | Download |
-| :-----------: | :-------: | :----: | ----- | --- | ------ | -------- |
-| BezierLaneNet | ResNet-18 | 73.67* |       |     |        |          |
-| BezierLaneNet | ResNet-34 | 75.57* |       |     |        |          |
-| BezierLaneNet |  DLA-34  |        |       |     |        |          |
+| Architecture | Backbone |      F1@50      | F1@75 | mF1 | Config | Download |
+| :-----------: | :-------: | :-------------: | ----- | --- | ------ | -------- |
+| BezierLaneNet | ResNet-18 | 73.67*\| 73.12 |       |     |        |          |
+| BezierLaneNet | ResNet-34 |   75.57*\| 7   |       |     |        |          |
+| BezierLaneNet |  DLA-34  |                |       |     |        |          |
 
 ### Results on TuSimple
 
@@ -28,7 +28,7 @@ This paper presents a novel parametric curve-based method for lane detection in 
 
 | Architecture | Backbone | F1@50 | F1@75 | mF1 | Config | Download |
 | :-----------: | :-------: | :---: | ----- | --- | ------ | :------: |
-| BezierLaneNet | ResNet-18 | 85.92 |       |     |        |          |
+| BezierLaneNet | ResNet-18 | 85.93 |       |     |        |          |
 | BezierLaneNet | ResNet-34 |      |       |     |        |          |
 | BezierLaneNet |  DLA-34  |      |       |     |        |          |
 

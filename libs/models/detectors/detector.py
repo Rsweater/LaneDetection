@@ -3,19 +3,19 @@ from mmdet.models.detectors.single_stage import SingleStageDetector
 
 
 @DETECTORS.register_module()
-class CLRerNet(SingleStageDetector):
+class Detector(SingleStageDetector):
     def __init__(
         self,
         backbone,
         neck,
-        lane_head,
+        lane_head=None,
         train_cfg=None,
         test_cfg=None,
         pretrained=None,
         init_cfg=None,
     ):
-        """CLRerNet detector."""
-        super(CLRerNet, self).__init__(
+        """Unified style detector."""
+        super(Detector, self).__init__(
             backbone=backbone, 
             neck=neck, 
             bbox_head=lane_head,
@@ -58,7 +58,7 @@ class CLRerNet(SingleStageDetector):
         ), "Only single-image test is supported."
         img_metas[0]["batch_input_shape"] = tuple(img.size()[-2:])
 
-        # For dynamic input image setting (e.g. CurveLanes dataset)
+        # For dynamic input image setting (e.g. CurveLanes、VIL-100 dataset)
         if "crop_offset" in img_metas[0]:
             self.bbox_head.test_cfg.cut_height = img_metas[0]["crop_offset"][1]
             self.bbox_head.test_cfg.ori_img_h = img_metas[0]["ori_shape"][0]

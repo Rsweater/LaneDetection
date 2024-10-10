@@ -9,6 +9,7 @@ from mmdet.datasets.pipelines.formatting import Collect, to_tensor
 
 @PIPELINES.register_module
 class CollectBeizerInfo(Collect):
+    """Adapted from mmLane"""
     def __init__(
         self,
         keys=None,
@@ -29,46 +30,25 @@ class CollectBeizerInfo(Collect):
         self.num_sample_points = num_sample_points
 
     def normalize_points(self, points, img_shape):
-        """
-        :param points: (N_lanes, N_control_points, 2)  2: (x, y)
-        :param img_shape: (h, w)
-        :return:
-
-        """
         h, w = img_shape
         points[..., 0] = points[..., 0] / w
         points[..., 1] = points[..., 1] / h
         return points
 
     def denormalize_points(self, points, img_shape):
-        """
-        :param points: (N_lanes, N_control_points, 2)  2: (x, y)
-        :param img_shape: (h, w)
-        :return:
-
-        """
         h, w = img_shape
         points[..., 0] = points[..., 0] * w
         points[..., 1] = points[..., 1] * h
         return points
 
     def get_valid_points(self, points):
-        """
-        :param points: (N_lanes, N_sample_points, 2)
-        :return:
-            valid_mask: (N_lanes, num_sample_points)
-        """
         return (points[..., 0] >= 0) * (points[..., 0] < 1) * (points[..., 1] >= 0) * (points[..., 1] < 1)
 
     def cubic_bezier_curve_segment(self, control_points, sample_points):
-        """
+        """ 
             控制点在做增广时可能会超出图像边界，因此使用DeCasteljau算法裁剪贝塞尔曲线段.
             具体做法是：通过判断采样点是否超出边界来确定t的边界值，即最小边界t0和最大边界t1.
             然后便可以通过文章公式（10）计算裁剪后的控制点坐标, 并以此作为label.
-        :param control_points: (N_lanes, N_controls, 2)
-        :param sample_points: (N_lanes, num_sample_points, 2)
-        :return:
-            res: (N_lanes, N_controls, 2)
         """
         if len(control_points) == 0:
             return control_points

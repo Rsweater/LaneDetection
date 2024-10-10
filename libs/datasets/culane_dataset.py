@@ -5,10 +5,10 @@ https://github.com/aliyun/conditional-lane-detection/blob/master/mmdet/datasets/
 import shutil
 from pathlib import Path
 
-import cv2
 import numpy as np
+from PIL import Image
+from torch.utils.data import Dataset
 from mmdet.datasets.builder import DATASETS
-from mmdet.datasets.custom import CustomDataset
 from mmdet.utils import get_root_logger
 from tqdm import tqdm
 
@@ -17,9 +17,9 @@ from libs.datasets.pipelines import Compose
 
 
 @DATASETS.register_module
-class CulaneDataset(CustomDataset):
+class CulaneDataset(Dataset):
     """Culane Dataset class."""
-
+    
     def __init__(
         self,
         data_root,
@@ -102,42 +102,9 @@ class CulaneDataset(CustomDataset):
     def __len__(self):
         return len(self.img_infos)
 
-    def prepare_train_img(self, idx):
+    def __getitem__(self, idx):
         """
-        Read and process the image through the transform pipeline for training.
-        Args:
-            idx (int): Data index.
-        Returns:
-            dict: Pipeline results containing
-                'img' and 'img_meta' data containers.
-        """
-        imgname = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
-        sub_img_name = self.img_infos[idx]
-        img = cv2.imread(imgname)
-        ori_shape = img.shape
-        kps, id_classes, id_instances = self.load_labels(idx)
-        results = dict(
-            filename=imgname,
-            sub_img_name=sub_img_name,
-            img=img,
-            gt_points=kps,
-            id_classes=id_classes,
-            id_instances=id_instances,
-            img_shape=ori_shape,
-            ori_shape=ori_shape,
-            eval_shape=(
-                320,
-                1640,
-            ),  # Used for LaneIoU calculation. Static for CULane dataset.
-            gt_masks=None,
-        )
-        if self.mask_paths[0]:
-            results["gt_masks"] = self.load_mask(idx)
-        return self.pipeline(results)
-
-    def prepare_test_img(self, idx):
-        """
-        Read and process the image through the transform pipeline for test.
+        Read and process the image through the transform pipeline for training and test.
         Args:
             idx (int): Data index.
         Returns:
@@ -146,18 +113,24 @@ class CulaneDataset(CustomDataset):
         """
         img_name = str(Path(self.img_prefix).joinpath(self.img_infos[idx]))
         sub_img_name = self.img_infos[idx]
-        img = cv2.imread(img_name)
+        img = np.array(Image.open(img_name))
         ori_shape = img.shape
         results = dict(
             filename=img_name,
             sub_img_name=sub_img_name,
             img=img,
-            gt_points=[],
-            id_classes=[],
-            id_instances=[],
             img_shape=ori_shape,
             ori_shape=ori_shape,
         )
+        if not self.test_mode:
+            kps, id_classes, id_instances = self.load_labels(idx)
+            results["gt_points"] = kps
+            results["id_classes"] = id_classes
+            results["id_instances"] = id_instances
+            results["eval_shape"] = (320, 1640)  # Used for LaneIoU calculation. Static for CULane dataset.
+            if self.mask_paths[0]:
+                results["gt_masks"] = self.load_mask(idx)
+
         return self.pipeline(results)
 
     def load_mask(self, idx):
@@ -169,7 +142,7 @@ class CulaneDataset(CustomDataset):
             numpy.ndarray: segmentation mask.
         """
         maskname = str(Path(self.img_prefix).joinpath(self.mask_paths[idx]))
-        mask = cv2.imread(maskname, cv2.IMREAD_UNCHANGED)
+        mask = np.array(Image.open(maskname))
         return mask
 
     def load_labels(self, idx, offset_y=0):
@@ -188,14 +161,14 @@ class CulaneDataset(CustomDataset):
                 list(map(float, line.split()))
                 for line in anno_file.readlines()
             ]
-        lanes = [[(lane[i], lane[i + 1]) for i in range(0, len(lane), 2)
+        lanes = [[(lane[i], lane[i + 1] - offset_y) for i in range(0, len(lane), 2)
                   if lane[i] >= 0 and lane[i + 1] >= 0] for lane in data]
         # remove duplicated points in each lane
         # lanes = [list(set(lane)) for lane in lanes]  
         # remove lanes with less than 2 points 
         # lanes = [lane for lane in lanes if len(lane) > 1] 
         # sort lanes by their y-coordinates in ascending order for interpolation
-        lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
+        # lanes = [sorted(lane, key=lambda x: x[1]) for lane in lanes] 
         id_classes = [1 for i in range(len(lanes))]
         id_instances = [i + 1 for i in range(len(lanes))]
         return lanes, id_classes, id_instances

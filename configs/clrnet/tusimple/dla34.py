@@ -18,7 +18,6 @@ custom_imports = dict(
 cfg_name = "clrnet_tusimple_r18.py"
 
 model = dict(
-    type="CLRerNet",
     backbone=dict(
         type='ResNet',
         depth=18,

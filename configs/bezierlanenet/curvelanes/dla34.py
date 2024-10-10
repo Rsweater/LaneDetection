@@ -1,6 +1,5 @@
 _base_ = [
-    "../base_clrernet.py",
-    "dataset_curvelanes_clrernet.py",
+    "../base_model.py", "dataset.py",
     "../../_base_/default_runtime.py",
 ]
 
@@ -19,7 +18,7 @@ custom_imports = dict(
 cfg_name = "clrernet_curvelanes_dla34.py"
 
 model = dict(
-    type="CLRerNet",
+    # type="CLRerNet",
     backbone=dict(
         type="DLANet",
         dla="dla34",

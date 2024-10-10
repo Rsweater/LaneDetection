@@ -18,7 +18,6 @@ custom_imports = dict(
 cfg_name = "clrnet_curvelanes_dla34.py"
 
 model = dict(
-    type="CLRerNet",
     backbone=dict(
         type="DLANet",
         dla="dla34",

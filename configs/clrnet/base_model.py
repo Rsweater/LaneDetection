@@ -1,5 +1,5 @@
 model = dict(
-    type="CLRerNet",
+    type="Detector",
     backbone=dict(type="DLANet"),
     neck=dict(
         type="CLRerNetFPN",

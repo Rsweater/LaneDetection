@@ -15,76 +15,18 @@ from .culane_dataset import CulaneDataset
 
 @DATASETS.register_module
 class CurvelanesDataset(CulaneDataset):
-    def prepare_train_img(self, idx):
+    def __getitem__(self, idx):
         """
-        Read and process the image through the transform pipeline for training.
+        Read and process the image through the transform pipeline for training and test.
         Args:
             idx (int): Data index.
         Returns:
             dict: Pipeline results containing
                 'img' and 'img_meta' data containers.
         """
-        img_info = self.img_infos[idx]
-        imgname = str(Path(self.img_prefix) / img_info)
-        sub_img_name = img_info
-        img_tmp = cv2.imread(imgname)
-        ori_shape = img_tmp.shape
-        if ori_shape == (1440, 2560, 3):
-            img = np.zeros((800, 2560, 3), np.uint8)
-            img[:800, :, :] = img_tmp[640:, ...]
-            crop_shape = (800, 2560, 3)
-            offset_y = -640
-        elif ori_shape == (660, 1570, 3):
-            img = np.zeros((480, 1570, 3), np.uint8)
-            img[:480, :, :] = img_tmp[180:, ...]
-            crop_shape = (480, 1570, 3)
-            offset_y = -180
-        elif ori_shape == (720, 1280, 3):
-            img = np.zeros((352, 1280, 3), np.uint8)
-            img[:352, :, :] = img_tmp[368:, ...]
-            crop_shape = (352, 1280, 3)
-            offset_y = -368
-        else:
-            return None
-        img_shape = img.shape
-        kps, id_classes, id_instances = self.load_labels(idx, offset_y)
-        eval_shape = (
-            crop_shape[0] / ori_shape[0] * 224,
-            224,
-        )  # Used for LaneIoU calculation.
-        results = dict(
-            filename=imgname,
-            sub_img_name=sub_img_name,
-            img=img,
-            gt_points=kps,
-            id_classes=id_classes,
-            id_instances=id_instances,
-            img_shape=img_shape,
-            ori_shape=ori_shape,
-            eval_shape=eval_shape,
-            crop_shape=crop_shape,
-        )
-        if self.mask_paths[0]:
-            mask = self.load_mask(idx)
-            mask = mask[-offset_y:, :, 0]
-            mask = np.clip(mask, 0, 1)
-            assert mask.shape[:2] == crop_shape[:2]
-            results["gt_masks"] = mask
-
-        return self.pipeline(results)
-
-    def prepare_test_img(self, idx):
-        """
-        Read and process the image through the transform pipeline for test.
-        Args:
-            idx (int): Data index.
-        Returns:
-            dict: Pipeline results containing
-                'img' and 'img_meta' data containers.
-        """
-        imgname = str(Path(self.img_prefix) / self.img_infos[idx])
+        img_name = str(Path(self.img_prefix) / self.img_infos[idx])
         sub_img_name = self.img_infos[idx]
-        img_tmp = cv2.imread(imgname)
+        img_tmp = cv2.imread(img_name)
         ori_shape = img_tmp.shape
 
         if ori_shape == (1440, 2560, 3):
@@ -102,12 +44,11 @@ class CurvelanesDataset(CulaneDataset):
             img[:352, :, :] = img_tmp[368:, ...]
             crop_shape = (352, 1280, 3)
             crop_offset = [0, 368]
-
         else:
             return None
 
         results = dict(
-            filename=imgname,
+            filename=img_name,
             sub_img_name=sub_img_name,
             img=img,
             gt_points=[],
@@ -118,6 +59,22 @@ class CurvelanesDataset(CulaneDataset):
             crop_offset=crop_offset,
             crop_shape=crop_shape,
         )
+
+        if not self.test_mode:
+            kps, id_classes, id_instances = self.load_labels(idx, crop_offset[1])
+            results["gt_points"] = kps
+            results["id_classes"] = id_classes
+            results["id_instances"] = id_instances
+            results["eval_shape"] = (
+                crop_shape[0] / ori_shape[0] * 224,
+                224,
+            )  # Used for LaneIoU calculation.
+            if self.mask_paths[0]:
+                mask = self.load_mask(idx)
+                mask = mask[crop_offset[1]:, :]
+                assert mask.shape[:2] == crop_shape[:2]
+                results["gt_masks"] = mask
+
         return self.pipeline(results)
 
     @staticmethod

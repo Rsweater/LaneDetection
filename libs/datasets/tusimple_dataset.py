@@ -5,12 +5,11 @@ https://github.com/aliyun/conditional-lane-detection/blob/master/mmdet/datasets/
 import shutil
 from pathlib import Path
 
-import cv2
 import json
 import numpy as np
 from PIL import Image
+from torch.utils.data import Dataset
 from mmdet.datasets.builder import DATASETS
-from mmdet.datasets.custom import CustomDataset
 from mmdet.utils import get_root_logger
 from tqdm import tqdm
 
@@ -19,7 +18,7 @@ from libs.datasets.pipelines import Compose
 
 
 @DATASETS.register_module
-class TuSimpleDataset(CustomDataset):
+class TuSimpleDataset(Dataset):
     """TuSimple Dataset class."""
 
     def __init__(
@@ -75,46 +74,7 @@ class TuSimpleDataset(CustomDataset):
     def __len__(self):
         return len(self.img_infos)
 
-    def prepare_train_img(self, idx):
-        """
-        Read and process the image through the transform pipeline for training.
-        Args:
-            idx (int): Data index.
-        Returns:
-            dict: Pipeline results containing
-                'img' and 'img_meta' data containers.
-        """
-        sub_img_name = self.img_infos[idx]["raw_file"]
-        img_name = str(Path(self.img_prefix).joinpath(sub_img_name))
-        img = np.array(Image.open(img_name))
-        ori_shape = img.shape
-        kps, id_classes, id_instances = self.load_labels(idx)
-        results = dict(
-            filename=img_name,
-            sub_img_name=sub_img_name,
-            img=img,
-            gt_points=kps,
-            id_classes=id_classes,
-            id_instances=id_instances,
-            img_shape=ori_shape,
-            ori_shape=ori_shape,
-            eval_shape=(
-                720-160,
-                1280,
-            ),  # Used for LaneIoU calculation. Static for TuSimple dataset.
-            gt_masks=self.load_mask(idx),
-        )
-        return self.pipeline(results)
-
-    def prepare_test_img(self, idx):
-        """
-        Read and process the image through the transform pipeline for test.
-        Args:
-            idx (int): Data index.
-        Returns:
-            dict: Pipeline results containing
-                'img' and 'img_meta' data containers.
-        """
+    def __getitem__(self, idx):
         sub_img_name = self.img_infos[idx]["raw_file"]
         img_name = str(Path(self.img_prefix).joinpath(sub_img_name))
         h_samples = self.img_infos[idx]['h_samples']
@@ -133,6 +93,17 @@ class TuSimpleDataset(CustomDataset):
             h_samples=h_samples,
             img_info=self.img_infos[idx]
         )
+
+        if not self.test_mode:
+            kps, id_classes, id_instances = self.load_labels(idx)
+            results["gt_points"] = kps
+            results["id_classes"] = id_classes
+            results["id_instances"] = id_instances
+            results["eval_shape"] = (
+                720-160,
+                1280,
+            )
+            results["gt_masks"] = self.load_mask(idx)
         return self.pipeline(results)
 
     def load_mask(self, idx):
@@ -162,10 +133,7 @@ class TuSimpleDataset(CustomDataset):
         shapes = []
         for lane in self.img_infos[idx]['lanes']:
             coords = []
-            for coord_x, coord_y in sorted(
-                zip(lane, self.img_infos[idx]['h_samples']), 
-                key=lambda x: x[1], reverse=True
-                ): # TODO: Fix Bug sorted() not working correctly
+            for coord_x, coord_y in zip(lane, self.img_infos[idx]['h_samples']):
                 if coord_x >= 0:
                     coord_x = float(coord_x)
                     coord_y = float(coord_y) - offset_y
@@ -209,8 +177,7 @@ class TuSimpleDataset(CustomDataset):
         print(f"\nWriting tusimple results to {dst_path}")
 
         results = LaneEval.bench_one_submit(dst_path, self.data_list[0])
-        
-        # shutil.rmtree(self.result_dir)
+        shutil.rmtree(self.result_dir)
         return results
 
     def get_prediction_string(self, lanes, h_samples):
