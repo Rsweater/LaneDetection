@@ -21,3 +21,4 @@ __pycache__/
 *.egg
 *.eggs
 
+git filter-branch --force --index-filter 'git rm --cached -r --ignore-unmatch projects/' --prune-empty --tag-name-filter cat -- --all
