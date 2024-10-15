@@ -95,7 +95,7 @@ class Alaug(object):
             # print(f"begin augmentation {i+1} {self.is_sorted(data['gt_points'])}")
             data_aug = self.aug(data)
             data = copy.deepcopy(data_org)
-            if self.cut_y_duplicated: 
+            if self.cut_y_duplicated:  #TODO：
                 # avoid lane sampling errors for sharp curve lanes
                 data_aug["gt_points"] = [list({point[1]: point for point in lane}.values()) for lane in data_aug["gt_points"]]
             if self.need_resorted: # augmentation may change the order of lanes
@@ -115,16 +115,15 @@ class Alaug(object):
         else:
             masks = None
 
+        lane_points_index = []
+        points_val = []
         if "gt_points" in data:
             lane_points = data["gt_points"] # xy format, all lanes
             # run aug
-            lane_points_index = []
-            for pts in lane_points:
-                lane_points_index.append(len(pts))
 
-            points_val = []
             for pts in lane_points:
                 num = len(pts)
+                lane_points_index.append(num)
                 for i in range(num):
                     points_val.append(list(pts[i]))
 

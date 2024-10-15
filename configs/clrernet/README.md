@@ -1,6 +1,7 @@
 # CLRerNet: Improving Confidence of Lane Detection with LaneIoU
 
 ([Arxiv 2305](https://arxiv.org/abs/2305.08366)) CLRerNet: Improving Confidence of Lane Detection with LaneIoU. [Hiroto Honda](https://dblp.uni-trier.de/pid/20/8792.html) et al. [WACV2024](https://doi.org/10.1109/WACV57701.2024.00121). [Code](https://github.com/hirotomusiker/CLRerNet)![Stars](https://img.shields.io/github/stars/hirotomusiker/CLRerNet)
+![img](../_base_/figures/clrernet.jpg)
 
 ## Abstract
 

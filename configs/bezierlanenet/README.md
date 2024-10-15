@@ -1,6 +1,7 @@
 # Rethinking Efficient Lane Detection via Curve Modeling
 
 ([Arxiv 2203](https://arxiv.org/abs/2203.02431)) **BézierLaneNet:** Rethinking Efficient Lane Detection via Curve Modeling. [Zhengyang Feng](https://dblp.uni-trier.de/pid/263/3128.html) et al. [CVPR 2022](https://doi.org/10.1109/CVPR52688.2022.01655). [Code](https://github.com/voldemortX/pytorch-auto-drive)![Stars](https://img.shields.io/github/stars/voldemortX/pytorch-auto-drive)
+![img](../_base_/figures/bezierlanenet.png)
 
 ## Abstract
 

@@ -69,13 +69,13 @@ def gen_label_for_json(args, image_set):
             img_path = label['raw_file']
             seg_img = Image.new('P', (W, H))
             palette = [
-                0, 0, 0,  # 0: 黑色（背景）
-                255, 0, 0,  # 1: 红色
-                0, 255, 0,  # 2: 绿色
-                0, 0, 255,  # 3: 蓝色
-                255, 255, 0,  # 4: 黄色
-                255, 0, 255,  # 5: 品红色
-                0, 255, 255,  # 6: 青色
+                0, 0, 0,  # 0: Black (background)
+                255, 0, 0,  # 1: Red
+                0, 255, 0,  # 2: Green
+                0, 0, 255,  # 3: Blue
+                255, 255, 0,  # 4: Yellow
+                255, 0, 255,  # 5: Magenta
+                0, 255, 255,  # 6: Cyan
             ]
             seg_img.putpalette(palette)
             list_str = []  # str to be written to list.txt

@@ -1,6 +1,7 @@
 # **CLRNet:** Cross Layer Refinement Network for Lane Detection.
 
 ([Arxiv 2203](https://arxiv.org/abs/2203.10350)) **CLRNet:** Cross Layer Refinement Network for Lane Detection. [Tu Zheng](https://dblp.uni-trier.de/pid/229/4199.html) et al. [CVPR2022](https://doi.org/10.1109/CVPR52688.2022.00097). [Code](https://github.com/Turoad/CLRNet)![Stars](https://img.shields.io/github/stars/Turoad/CLRNet)
+![img](../_base_/figures/clrnet.png)
 
 ## Abstract
 
