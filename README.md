@@ -6,19 +6,19 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 <details>
 <summary>Data Design</summary>
 
-* **Multi-Dataset Support:** Compatible with mainstream datasets including CuLane, TuSimple, VIL-100, and CurveLanes.
-* **Versatile Lane Modeling:** Supports various lane modeling methods tailored to different use cases.
-* **Unified Structure:** Designed with a consistent dataset structure and external interface for ease of use.
-* **Efficient Label Storage:** Utilizes a space-efficient storage method for segmentation labels that simplifies the review of segmentation results.
-* **Data Augmentation:** Integrates Albumetation for consistent model training and supports multi-scale image cropping.
+* **Multi-Dataset Compatibility:** Supports a wide range of mainstream datasets, including CuLane, TuSimple, VIL-100, and CurveLanes. 
+* **Versatile Lane Modeling:** Offers a variety of lane modeling methods tailored to different use cases, ensuring flexibility and adaptability.
+* **Unified Code Structure:** Designed with a consistent dataset structure and standardized external interface for easy integration and use. 
+* **Efficient Storage of Segmentation Label:** Utilizes a space-efficient storage method for segmentation labels, simplifying the review and analysis of segmentation results. 
+* **Data Augmentation:** Integrates albumetation for consistent and robust model training, and supports multi-scale image cropping to enhance model generalization.
 
 </details>
 
 <details>
 <summary>Module Design</summary>
 
-* **SOTA Methods Support:** Includes a wide range of classic state-of-the-art algorithms.
-* **Streamlined Code:** Employs encapsulation and inheritance for a unified external interface and structured design, facilitating rapid implementation of diverse algorithms and enhancing understanding of their differences.
+* **State-of-the-Art (SOTA) Methods Support:** Incorporates a comprehensive selection of classic and cutting-edge state-of-the-art algorithms.
+* **Streamlined Code Design:** Utilizes encapsulation and inheritance to provide a unified external interface and a well-structured design. This approach facilitates the rapid implementation of diverse algorithms and enhances the understanding of their differences.
 
 </details>
 
@@ -26,9 +26,9 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 
 <summary>Training Design</summary>
 
-* **Lifecycle Management:** Features a comprehensive module lifecycle management Runner for efficient tracking.
-* **Organized Logging:** Ensures a structured log storage system that allows for easy querying, alongside a logically organized configuration file structure.
-* **Version Control:** Provides functionality for easy code version comparison and supports bash scripts for quick environment configuration with single-line commands.
+* **Comprehensive Lifecycle Management:** Features a robust module lifecycle management system (Runner) for efficiently tracking and managing data and modules.
+* **Structured Logging:** Ensures a well-organized log storage system that facilitates easy querying and analysis, complemented by a logically structured configuration file system.
+* **Version Control and Environment Setup:** Provides tools for easy code version comparison and supports bash scripts for rapid environment setup with single-line commands, ensuring consistency and reproducibility.
 
 </details>
 
