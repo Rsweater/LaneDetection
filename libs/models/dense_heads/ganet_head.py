@@ -105,9 +105,10 @@ class GAHead(nn.Module):
         # (B, C=64, H3, W3) --> (B, 2, H3, W3)
         kp_offset = self.kp_offset_head(f_hm)['offset']
         sp_offset = self.sp_offset_head(f_hm)['offset']
-        
-        return dict(
-            kpts_hm=kpts_hm,
-            kp_offset=kp_offset, 
-            sp_offset=sp_offset
-        )
+
+        pred_dict = {
+            'kpts_hm': kpts_hm,
+            'kp_offset': kp_offset,
+            'sp_offset': sp_offset
+        }
+        return pred_dict
