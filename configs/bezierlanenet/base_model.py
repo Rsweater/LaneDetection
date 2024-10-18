@@ -1,5 +1,5 @@
 model = dict(
-    type="BezierLaneNet",
+    type="Detector",
     backbone=dict(type="DLANet"),
     neck=dict(
         type="FeatureFlipFusion",
