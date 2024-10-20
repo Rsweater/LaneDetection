@@ -1,3 +1,4 @@
+
 from mmdet.models.builder import DETECTORS
 from mmdet.models.detectors.single_stage import SingleStageDetector
 
@@ -24,6 +25,19 @@ class Detector(SingleStageDetector):
             pretrained=pretrained, 
             init_cfg=init_cfg
         )
+        
+    # Inherited from SingleStageDetector, overriding the forward_train and forward_test methods.
+    # 
+    # @auto_fp16(apply_to=('img', ))
+    # def forward(self, img, img_metas, return_loss=True, **kwargs):
+    #     if torch.onnx.is_in_onnx_export():
+    #         assert len(img_metas) == 1
+    #         return self.onnx_export(img[0], img_metas[0])
+
+    #     if return_loss:
+    #         return self.forward_train(img, img_metas, **kwargs)
+    #     else:
+    #         return self.forward_test(img, img_metas, **kwargs)
 
     def forward_train(self, img, img_metas, **kwargs):
         """

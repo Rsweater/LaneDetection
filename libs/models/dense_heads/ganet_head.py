@@ -112,3 +112,9 @@ class GAHead(nn.Module):
             'sp_offset': sp_offset
         }
         return pred_dict
+
+    def loss(self, out_dict, img_metass):
+        pass
+    
+    def get_lanes(self, ):
+        pass
