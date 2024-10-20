@@ -78,7 +78,7 @@ train_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
+        type="CollectCLRInfo",
         keys=["img"],
         max_lanes=6,
         meta_keys=[
@@ -103,7 +103,7 @@ val_pipeline = [
     dict(type="Normalize", **img_norm_cfg),
     dict(type="DefaultFormatBundle"),
     dict(
-        type="CollectCLRNet",
+        type="CollectCLRInfo",
         keys=["img"],
         max_lanes=6,
         meta_keys=[
