@@ -5,7 +5,7 @@
 """
 
 dataset_type = "CurvelanesDataset"
-data_root = "dataset/curvelanes"
+data_root = "datasets/curvelanes"
 img_scale = (800, 320)
 
 img_norm_cfg = dict(

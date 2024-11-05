@@ -1,5 +1,5 @@
 model = dict(
-    type="Detector",
+    type="BezierLaneNet",
     backbone=dict(type="DLANet"),
     neck=dict(
         type="FeatureFlipFusion",
@@ -17,13 +17,14 @@ model = dict(
         stacked_convs=2,
         order=3,
         num_sample_points=100,
-        loss_cls=dict(
-            type='CrossEntropyLoss',
-            use_sigmoid=True,
-            class_weight=1.0 / 0.4,
-            reduction='mean',
-            loss_weight=0.1
-        ),
+        # loss_cls=dict(
+        #     type='CrossEntropyLoss',
+        #     use_sigmoid=True,
+        #     class_weight=1.0 / 0.4,
+        #     reduction='mean',
+        #     loss_weight=0.1
+        # ),
+        loss_cls=dict(type="FocalLoss", alpha=0.25, gamma=2, loss_weight=0.1),
         loss_dist=dict(
             type='L1Loss',
             reduction='mean',

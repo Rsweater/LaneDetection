@@ -5,7 +5,7 @@
 """
 
 dataset_type = "TuSimpleDataset"
-data_root = "dataset/tusimple"
+data_root = "datasets/tusimple"
 img_scale = (640, 360)
 crop_bbox = [0, 160, 1280, 720]
 img_norm_cfg = dict(

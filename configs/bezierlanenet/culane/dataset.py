@@ -1,5 +1,5 @@
 dataset_type = "CulaneDataset"
-data_root = "dataset/culane"
+data_root = "datasets/culane"
 crop_bbox = [0, 270, 1640, 590]
 img_scale = (800, 288)
 img_norm_cfg = dict(
