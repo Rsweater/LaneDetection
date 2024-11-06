@@ -58,6 +58,36 @@ printf "The virtual environment has been created successfully.\n"
 conda env list
 conda activate $env_name
 
+# Link dataset to the project.
+printf "Linking the dataset to the project...\n"
+mkdir -p ./datasets
+# CULane dataset
+read -p "Do you want to link the CULane dataset? (y/n): " link_culane
+if [ "$link_culane" = "y" ]; then
+    read -p "Please input the path to the CULane dataset: " culane_path
+    ln -s $culane_path ./datasets/culane
+fi
+# TuSimple dataset
+read -p "Do you want to link the TuSimple dataset? (y/n): " link_tusimple
+if [ "$link_tusimple" = "y" ]; then
+    read -p "Please input the path to the TuSimple dataset: " tusimple_path
+    ln -s $tusimple_path ./datasets/tusimple
+fi
+# VIL-100 dataset
+read -p "Do you want to link the VIL-100 dataset? (y/n): " link_vil100
+if [ "$link_vil100" = "y" ]; then
+    read -p "Please input the path to the VIL-100 dataset: " vil100_path
+    ln -s $vil100_path ./datasets/vil100
+fi
+# CurveLanes dataset
+read -p "Do you want to link the CurveLanes dataset? (y/n): " link_curvelanes
+if [ "$link_curvelanes" = "y" ]; then
+    read -p "Please input the path to the CurveLanes dataset: " curvelanes_path
+    ln -s $curvelanes_path ./datasets/curvelanes
+fi
+printf "The dataset has been linked successfully.\n"
+
+
 # Install the required packages.
 printf "Installing the required packages...\n"
 printf "Please wait for a moment...\n"
