@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from mmdet.models.builder import NECKS
 from mmcv.ops import ModulatedDeformConv2d, modulated_deform_conv2d
 
-from ..utils.dilated_blocks import DilatedBlocks
+from ..layers.dilated_blocks import DilatedBlocks
 
 
 class DCNV2_Ref(ModulatedDeformConv2d):

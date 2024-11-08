@@ -120,7 +120,6 @@ class Alaug(object):
         if "gt_points" in data:
             lane_points = data["gt_points"] # xy format, all lanes
             # run aug
-
             for pts in lane_points:
                 num = len(pts)
                 lane_points_index.append(num)
@@ -147,6 +146,8 @@ class Alaug(object):
                 for i in range(lane_points_index[lane_id]):
                     kp_list[lane_id].append(points[self.cal_sum_list(lane_points_index, lane_id) + i])
             data["gt_points"] = kp_list
+        else: 
+            data["gt_points"] = []
 
         return data
 

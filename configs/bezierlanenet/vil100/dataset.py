@@ -5,7 +5,7 @@
 """
 
 dataset_type = "VIL100Dataset"
-data_root = "dataset/vil100"
+data_root = "datasets/vil100"
 img_scale = (640, 360)
 img_norm_cfg = dict(
     mean=[0.0, 0.0, 0.0], std=[255.0, 255.0, 255.0], to_rgb=False

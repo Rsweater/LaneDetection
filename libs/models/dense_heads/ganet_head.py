@@ -87,8 +87,7 @@ class GAHead(nn.Module):
         #     kp_offset: (B, 2, H3, W3)
         #     sp_offset: (B, 2, H3, W3)
         # }
-        results_list = self.get_lanes(
-            predictions, img_metas=img_metas)
+        results_list = self.get_lanes(predictions)
         return results_list
     
     def forward(self, x):
@@ -113,8 +112,17 @@ class GAHead(nn.Module):
         }
         return pred_dict
 
-    def loss(self, out_dict, img_metass):
-        pass
+    def loss(self, out_dict, img_metas):
+        kpts_hm = out_dict['kpts_hm']    # (B, C=1, H3, W3)
+        kp_offset = out_dict['kp_offset']    # (B, 2, H3, W3)
+        sp_offset = out_dict['sp_offset']    # (B, 2, H3, W3)
+
+        # TODO: debug 查看img_metas的格式
+        gt_kpts_hm = img_metas['gt_kpts_hm']    # (B, C=1, H3, W3)
+        gt_kp_offset = img_metas['gt_kp_offset']    # (B, 2, H3, W3)
+        gt_sp_offset = img_metas['gt_sp_offset']    # (B, 2, H3, W3)
+        kp_offset_mask = img_metas['kp_offset_mask']    # (B, 2, H3, W3)
+        sp_offset_mask = img_metas['sp_offset_mask']    # (B, 2, H3, W3)
     
-    def get_lanes(self, ):
+    def get_lanes(self, pred_dict):
         pass
