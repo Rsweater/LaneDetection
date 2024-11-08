@@ -9,7 +9,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, "/data/cbw/LaneDetection_mm")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
 
 import torch
 from mmcv.runner import get_dist_info, init_dist

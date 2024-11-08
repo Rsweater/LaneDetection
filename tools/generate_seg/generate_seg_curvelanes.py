@@ -8,8 +8,9 @@ from mmcv import Config
 from mmcv import DictAction
 from mmdet.datasets import build_dataset
 from tqdm import tqdm
+import os
 import sys
-sys.path.insert(0, "/home/data/cbw/MyNets/LaneDetection_mm")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
 
 from libs.datasets.metrics.culane_metric import draw_lane
 from libs.datasets.metrics.culane_metric import interp

@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, "/home/data/cbw/MyNets/Nets/LaneDetection_mm")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
 
 # suppress mmcv v2.0.0 announcement
 warnings.filterwarnings('ignore', module='mmcv')
