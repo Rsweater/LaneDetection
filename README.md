@@ -75,7 +75,7 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 
 ```bash
 # Clone the repo
-git clone https://github.com/Rsweater/LaneDetection_mm.git
+git clone https://github.com/Rsweater/LaneDetection.git
 
 # Create&Activate environment
 conda create -n LaneDetection python=3.8 -y
