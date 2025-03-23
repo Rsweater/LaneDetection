@@ -28,6 +28,17 @@ class Lane:
 
         lane_xs[(lane_ys < self.min_y) | (lane_ys > self.max_y)] = self.invalid_value
         return lane_xs
+    
+    def to_array(self, sample_y, img_size):
+        img_h, img_w = img_size
+        ys = np.array(sample_y) / float(img_h)
+        xs = self(ys)
+        valid_mask = (xs >= 0) & (xs < 1)
+        lane_xs = xs[valid_mask] * img_w
+        lane_ys = ys[valid_mask] * img_h
+        lane = np.concatenate((lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)),
+                              axis=1)
+        return lane
 
     def __iter__(self):
         return self
