@@ -49,8 +49,8 @@ model = dict(
     ),
 )
 
-total_epochs = 400
-evaluation = dict(start=10, interval=10)
+total_epochs = 250
+evaluation = dict(start=100, interval=10)
 checkpoint_config = dict(interval=1, max_keep_ckpts=10)
 
 
