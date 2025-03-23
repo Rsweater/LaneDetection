@@ -12,8 +12,9 @@ from mmdet.datasets.builder import DATASETS
 from mmdet.utils import get_root_logger
 from tqdm import tqdm
 
-from libs.datasets.metrics.culane_metric import eval_predictions
+from libs.datasets.metrics.culane_metric import eval_predictions, culane_metric
 from libs.datasets.pipelines import Compose
+from libs.utils.visualizer import visualize_lanes
 
 
 @DATASETS.register_module
@@ -238,3 +239,22 @@ class CulaneDataset(Dataset):
             if lane_str != "":
                 out.append(lane_str)
         return "\n".join(out) if len(out) > 0 else ""
+
+    def Lane2list_org(self,pred):
+        """
+        Returns a list of lanes, where each lane is a list of points (x,y)
+        """
+        ys = np.array(self.h_samples) / self.img_h
+        xs = pred(ys)
+        valid_mask = (xs >= 0) & (xs < 1)
+        xs = xs * self.img_w
+        lane_xs = xs[valid_mask]
+        lane_ys = ys[valid_mask] * self.img_h
+        lane = np.concatenate((lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)), axis=1)
+        return lane
+
+    def show_result(self, img, lanes, gts, save_path, img_shape=(590, 1640, 3), iou_thr=0.5):
+        lanes = [self.Lane2list_org(lane) for lane in lanes]
+        gts = [np.array(lane) for lane in gts]
+        _, pred_ious = culane_metric(lanes, gts, width=30, official=True, img_shape=img_shape)
+        visualize_lanes(img, lanes, gts, pred_ious, iou_thr=iou_thr, save_path=save_path)

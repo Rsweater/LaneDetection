@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import cv2
+import os
 
 GT_COLOR = (255, 0, 0)
 PRED_HIT_COLOR = (0, 255, 0)
@@ -51,8 +52,8 @@ def visualize_lanes(
     """
     dst = copy.deepcopy(src)
     for anno in annos:
-        dst = draw_lane(anno, dst, dst.shape, width=4, color=GT_COLOR)
-    if pred_ious == None:
+        dst = draw_lane(np.array(anno), dst, dst.shape, width=4, color=GT_COLOR)
+    if pred_ious.size == 0:
         hits = [True for i in range(len(preds))]
     else:
         hits = [iou > iou_thr for iou in pred_ious]
@@ -62,5 +63,8 @@ def visualize_lanes(
     if concat_src:
         dst = np.concatenate((src, dst), axis=0)
     if save_path:
-        cv2.imwrite(save_path, dst)
+        if not os.path.exists(os.path.dirname(save_path)):
+            os.makedirs(os.path.dirname(save_path))
+        success = cv2.imwrite(save_path, dst)
+        print(f"Save visualization result to {save_path}, success: {success}")
     return dst

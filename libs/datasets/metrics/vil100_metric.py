@@ -19,6 +19,18 @@ from mmcv.utils import print_log
 from libs.core.lane.visualizer import draw_lane
 from libs.core.lane.lane_utils import interp
 
+def get_macro_measure(img_list, measures):
+    sequences = {}
+    for img_path, iou in zip(img_list, measures):
+        sequence = os.path.dirname(img_path)
+        if sequence in sequences:
+            sequences[sequence].append(iou)
+        else:
+            sequences[sequence] = [iou]
+    macro_measure = 0
+    for sequence in sequences:
+        macro_measure += np.mean(sequences[sequence])
+    return macro_measure / len(sequences)
 
 def discrete_cross_iou(xs, ys, width=30, img_shape=(590, 1640, 3)):
     """
@@ -84,6 +96,7 @@ def culane_metric(
     results = {
         'n_gt': len(anno),
         'hits': hits,
+        'iou':pred_ious
     }
 
     return results
@@ -142,7 +155,7 @@ def eval_predictions(
     pred_dir,
     anno_dir,
     img_sub_paths,
-    iou_thresholds=[0.1, 0.5, 0.75],
+    iou_thresholds=[0.5, 0.8],
     width=30,
     sequential=False,
     logger=None,
@@ -211,11 +224,12 @@ def eval_predictions(
         )
 
     result_dict = {}
-
+    mean_f1, mean_prec, mean_recall, total_tp, total_fp, total_fn = 0, 0, 0, 0, 0, 0
     for k, iou_thr in enumerate(iou_thresholds):
         print_log(f"Evaluation results for IoU threshold = {iou_thr}", logger=logger)
         # category = categories if i == 0 else [categories[i - 1]]
         n_gt_list = [r['n_gt'] for r in results]
+        ious = [r['iou'].max() if len(r['iou']) > 0 else 0 for r in results]
         # n_category = len([r for r in results])
         # if n_category == 0:
         #     continue
@@ -228,6 +242,7 @@ def eval_predictions(
         prec = tp / (tp + fp + eps)
         rec = tp / (n_gts + eps)
         f1 = 2 * prec * rec / (prec + rec + eps)
+        miou = get_macro_measure(img_sub_paths, ious)
 
         result_dict.update(
             {
@@ -237,12 +252,36 @@ def eval_predictions(
                 f"Precision{iou_thr}": prec,
                 f"Recall{iou_thr}": rec,
                 f"F1_{iou_thr}": f1,
+                f"IoU_{iou_thr}": miou,
             }
         )
         print_log(
             f"TP: {tp:5}, FP: {fp:5}, FN: {n_gts - tp:5}, "
-            f"Precision: {prec:.4f}, Recall: {rec:.4f}, F1: {f1:.4f}",
+            f"Precision: {prec:.4f}, Recall: {rec:.4f}, F1: {f1:.4f}, mIoU: {miou:.4f}", 
             logger=logger,
+        )
+
+        mean_f1 += f1 / len(iou_thresholds)
+        mean_prec += prec / len(iou_thresholds)
+        mean_recall += rec / len(iou_thresholds)
+        total_tp += tp
+        total_fp += fp
+        total_fn += (n_gts - tp)
+    if len(iou_thresholds) > 2:
+        print_log(
+            f"Mean result, total_tp: {total_tp}, total_fp: {total_fp}, total_fn: {total_fn}, "
+            f"precision: {mean_prec}, recall: {mean_recall}, f1: {mean_f1}",
+            logger=logger,
+        )
+        result_dict.update(
+            {
+                'mean_TP': total_tp,
+                'mean_FP': total_fp,
+                'mean_FN': total_fn,
+                'mean_Precision': mean_prec,
+                'mean_Recall': mean_recall,
+                'mean_F1': mean_f1,
+            }
         )
 
     return result_dict

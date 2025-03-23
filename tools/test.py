@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import warnings
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 # suppress mmcv v2.0.0 announcement
 warnings.filterwarnings('ignore', module='mmcv')
@@ -17,7 +17,7 @@ from mmcv.cnn import fuse_conv_bn
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint, wrap_fp16_model
 
-from mmdet.apis import multi_gpu_test, single_gpu_test
+from libs.api.test import multi_gpu_test, single_gpu_test
 from mmdet.datasets import build_dataloader, build_dataset, replace_ImageToTensor
 from mmdet.models import build_detector
 

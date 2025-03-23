@@ -86,6 +86,7 @@ def culane_metric(
         'n_gt': len(anno),
         'cat': cat,
         'hits': hits,
+        'iou':pred_ious
     }
 
     return results
@@ -247,13 +248,13 @@ def eval_predictions(
         print_log(f"Evaluation results for IoU threshold = {iou_thr}", logger=logger)
         for i in range(len(categories) + 1):
             category = categories if i == 0 else [categories[i - 1]]
-            n_gt_list = [r['n_gt'] for r in results if r['cat'] in category]
-            n_category = len([r for r in results if r['cat'] in category])
+            n_gt_list = [r[0]['n_gt'] for r in results if r['cat'] in category]
+            n_category = len([r[0] for r in results if r['cat'] in category])
             if n_category == 0:
                 continue
             n_gts = sum(n_gt_list)
             hits = np.concatenate(
-                [r['hits'][k] for r in results if r['cat'] in category]
+                [r[0]['hits'][k] for r in results if r['cat'] in category]
             )
             tp = np.sum(hits)
             fp = len(hits) - np.sum(hits)
