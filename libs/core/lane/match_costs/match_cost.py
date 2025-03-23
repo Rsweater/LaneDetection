@@ -1,7 +1,7 @@
 import torch
 from mmdet.core.bbox.match_costs.builder import MATCH_COST
 
-from libs.models.losses import LaneIoULoss
+from libs.models.losses import LaneIoULoss, lane_length
 
 
 @MATCH_COST.register_module()
@@ -68,6 +68,72 @@ class DistanceCost:
 
         return distances
 
+
+@MATCH_COST.register_module()
+class CIoUCost:
+    def __init__(self, weight=1.0, r=10):
+        self.weight = weight
+        self.r = r
+
+    def __call__(self, pred, target):
+        """
+        Calculate the Chamfer IoU between predictions and targets
+        Args:
+            pred: lane predictions, shape: (Nlp, Nsp, 2)
+            target: ground truth, shape: (Nlt, Nsp, 2)
+        Returns:
+            torch.Tensor: calculated IoU matrix, shape (Nlp, Nlt)
+        Nlp, Nlt: number of prediction and target lanes, Nr: number of rows.
+        """
+        # (Nlp, Nsp, 2) -> (Nlp, 1, Nsp, 2)
+        pred = pred.unsqueeze(1)
+        # (Nlt, Nsp, 2) -> (1, Nlt, Nsp, 2)
+        target = target.unsqueeze(0)
+
+        # calculate the distance between each prediction and each target
+        # (Nlp, Nlt, Nsp, Nsp)
+        dist = torch.cdist(pred, target, p=2)
+
+        # double direction distance matrix
+        min_dist_pred_to_target = torch.min(dist, dim=-1).values # (Nlp, Nlt, Nsp)
+        min_dist_target_to_pred = torch.min(dist, dim=-2).values # (Nlp, Nlt, Nsp)
+        # calculate the CIoU
+        ciou_pred_to_target = (2*self.r - min_dist_pred_to_target) / (2*self.r + min_dist_target_to_pred)
+        ciou_target_to_pred = (2*self.r - min_dist_target_to_pred) / (2*self.r + min_dist_pred_to_target)
+
+        return 1 - 0.5*(ciou_pred_to_target.mean(-1) + ciou_target_to_pred.mean(-1)) * self.weight
+
+
+@MATCH_COST.register_module()
+class EndpointCost:
+    def __init__(self, weight=1.0):
+        self.weight = weight
+    
+    def __call__(self, pred, target):
+        pred_start = pred[:, 0, :].unsqueeze(1)  # (Nlp, 1, 2)
+        pred_end = pred[:, -1, :].unsqueeze(1)  # (Nlp, 1, 2)
+        target_start = target[:, 0, :].unsqueeze(0)  # (1, Nlt, 2)
+        target_end = target[:, -1, :].unsqueeze(0)  # (1, Nlt, 2)
+        
+        # l2 distance between endpoints
+        start_dist = torch.cdist(pred_start, target_start, p=2).squeeze()  # (Nlp, Nlt)
+        end_dist = torch.cdist(pred_end, target_end, p=2).squeeze()  # (Nlp, Nlt)
+
+        return (start_dist + end_dist) * 0.5 * self.weight
+
+
+@MATCH_COST.register_module()
+class LengthCost:
+    def __init__(self, weight=1.0):
+        self.weight = weight
+
+    def __call__(self, pred, target):
+        len_pred = lane_length(pred)
+        len_target = lane_length(target)
+
+        ratio = len_pred[:, None] / (len_target[None, :] + 1e-9)
+
+        return torch.abs(ratio - 1.0) * self.weight
 
 @MATCH_COST.register_module()
 class CLRNetIoUCost:
