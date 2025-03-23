@@ -33,39 +33,6 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 
 </details>
 
-## Support Models
-
-<table align="center">
-    <tr>
-        <th><b>Paradigm</b></th>
-        <th><b>TODO</b></th>
-    </tr>
-    <tr>
-        <td>Traditional Semantic Segmentation</td>
-        <td>☐SCNN  ☐RESA</td>
-    </tr>
-    <tr>
-        <td>Grid Semantic Segmentation</td>
-        <td>☐UFLD ☐UFLDv2 ☐CondLaneNet</td>
-    </tr>
-    <tr>
-        <td>Instance Segmentation</td>
-        <td>☐CondLaneNet</td>
-    </tr>
-    <tr>
-        <td>Keypoints Detection</td>
-        <td>☐GANet</td>
-    </tr>
-    <tr>
-        <td>Parametric Curve Detection</td>
-        <td>☑<a href="./configs/bezierlanenet/README.md">BézierLaneNet</a> ☐BSNet</td>
-    </tr>
-    <tr>
-        <td>Line-Proposal&Line-Anchor Detection</td>
-        <td>☐LaneATT ☑<a href="./configs/clrnet/README.md">CLRNet</a> ☑<a href="./configs/clrernet/README.md">CLRerNet</a> ☐O2SFormer ☐ADNet</td>
-    </tr>
-</table>
-
 ## Getting Started
 
 ### Install
@@ -381,6 +348,39 @@ python tools/analysis_tools/calculate_frame_diff.py [culane_root_path]
 ```
 
 </details>
+
+## Support Models
+
+<table align="center">
+    <tr>
+        <th><b>Paradigm</b></th>
+        <th><b>TODO</b></th>
+    </tr>
+    <tr>
+        <td>Traditional Semantic Segmentation</td>
+        <td>☐SCNN  ☐RESA</td>
+    </tr>
+    <tr>
+        <td>Grid Semantic Segmentation</td>
+        <td>☐UFLD ☐UFLDv2 ☐CondLaneNet</td>
+    </tr>
+    <tr>
+        <td>Instance Segmentation</td>
+        <td>☐CondLaneNet</td>
+    </tr>
+    <tr>
+        <td>Keypoints Detection</td>
+        <td>☐GANet</td>
+    </tr>
+    <tr>
+        <td>Parametric Curve Detection</td>
+        <td>☑<a href="./configs/bezierlanenet/README.md">BézierLaneNet</a> ☐BSNet</td>
+    </tr>
+    <tr>
+        <td>Line-Proposal&Line-Anchor Detection</td>
+        <td>☐LaneATT ☑<a href="./configs/clrnet/README.md">CLRNet</a> ☑<a href="./configs/clrernet/README.md">CLRerNet</a> ☐O2SFormer ☐ADNet</td>
+    </tr>
+</table>
 
 ## Citation
 

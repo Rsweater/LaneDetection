@@ -1,7 +1,7 @@
 # install.sh 脚本代码如下
 #!/usr/bin/env bash
 
-# Copyright (c) 2018 Baowang Chen
+# Copyright (c) 2018 anonymous_author_name
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# author:   Baowang Chen <bw_chen1223@foxmail.com>
+# author:   anonymous_author_name
+# email:    anonymous_author_email
 # version:  2024.08
 # date:     June 15, 2024
 
@@ -39,15 +40,15 @@ fi
 # If you have not cloned the LaneDetection_mm project, input the path to clone it.
 # elif, input the path of the LaneDetection_mm project.
 # cd to the LaneDetection_mm project.
-read -p "Have you cloned the LaneDetection project? (y/n) " answer
-if [ "$answer" == "n" ]; then
-    read -p "Please input the path to clone the LaneDetection project: " path
-    git clone https://github.com/Rsweater/LaneDetection.git $path
-    cd $path/LaneDetection
-else
-    read -p "Please input the path of the LaneDetection project: " path
-    cd $path
-fi
+# read -p "Have you cloned the LaneDetection project? (y/n) " answer
+# if [ "$answer" == "n" ]; then
+#     read -p "Please input the path to clone the LaneDetection project: " path
+#     git clone https://anonymous.4open.science/r/LaneDetection-FD80.git $path
+#     cd $path/LaneDetection
+# else
+#     read -p "Please input the path of the LaneDetection project: " path
+#     cd $path
+# fi
 
 read -p "Please input the name of the virtual environment: " env_name
 printf "Creating the virtual environment...\n"
