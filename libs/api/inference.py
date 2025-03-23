@@ -1,14 +1,72 @@
 # modified based on:
 # https://github.com/open-mmlab/mmdetection/blob/v2.28.0/mmdet/apis/inference.py
 # Copyright (c) OpenMMLab. All rights reserved.
+import os
+from pathlib import Path
 
+import mmcv
 import cv2
 import torch
+import numpy as np
 from mmcv.parallel import collate, scatter
+from mmcv.runner import load_checkpoint
+from mmdet.models import build_detector
 
 from libs.datasets.pipelines import Compose
 from libs.datasets.metrics.culane_metric import interp
 
+
+def init_detector(config, checkpoint=None, device='cuda:0', cfg_options=None):
+    """Initialize a detector from config file.
+
+    Args:
+        config (str, :obj:`Path`, or :obj:`mmcv.Config`): Config file path,
+            :obj:`Path`, or the config object.
+        checkpoint (str, optional): Checkpoint path. If left as None, the model
+            will not load any weights.
+        cfg_options (dict): Options to override some settings in the used
+            config.
+
+    Returns:
+        nn.Module: The constructed detector.
+    """
+    if isinstance(config, (str, Path)):
+        config = mmcv.Config.fromfile(config)
+    elif not isinstance(config, mmcv.Config):
+        raise TypeError('config must be a filename or Config object, '
+                        f'but got {type(config)}')
+    if cfg_options is not None:
+        config.merge_from_dict(cfg_options)
+    if 'pretrained' in config.model:
+        config.model.pretrained = None
+    elif 'init_cfg' in config.model.backbone:
+        config.model.backbone.init_cfg = None
+
+    # import modules from plguin/xx, registry will be updated
+    if hasattr(config, 'plugin'):
+        if config.plugin:
+            import importlib
+            if hasattr(config, 'plugin_dir'):
+                plugin_dir = config.plugin_dir
+                _module_dir = os.path.dirname(plugin_dir)
+                _module_dir = _module_dir.split('/')
+                _module_path = _module_dir[0]
+
+                for m in _module_dir[1:]:
+                    _module_path = _module_path + '.' + m
+                print(_module_path)
+                plg_lib = importlib.import_module(_module_path)
+
+    config.model.train_cfg = None
+    model = build_detector(config.model, test_cfg=config.get('test_cfg'))
+    if checkpoint is not None:
+        checkpoint = load_checkpoint(model, checkpoint, map_location='cpu')
+
+    model.cfg = config  # save the config in the model for convenience
+    model.to(device)
+    model.eval()
+
+    return model
 
 def inference_one_image(model, img_path):
     """Inference on an image with the detector.
