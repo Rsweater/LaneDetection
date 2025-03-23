@@ -3,6 +3,9 @@
 from argparse import ArgumentParser
 
 from mmdet.apis import init_detector
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from libs.api.inference import inference_one_image
 from libs.utils.visualizer import visualize_lanes
@@ -28,7 +31,7 @@ def main(args):
     # test a single image
     src, preds = inference_one_image(model, args.img)
     # show the results
-    dst = visualize_lanes(src, preds, save_path=args.out_file)
+    visualize_lanes(src, preds, save_path=args.out_file)
 
 
 if __name__ == '__main__':

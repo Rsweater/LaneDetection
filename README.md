@@ -3,13 +3,14 @@
 LaneDetection is a comprehensive and stylistically unified lane detection library aimed at accelerating the progress of algorithm research and reproduction in scientific and industrial applications. Some of the reproduced methods achieve accuracy that surpasses the original paper results.
 
 ## Features
+
 <details>
 <summary>Data Design</summary>
 
-* **Multi-Dataset Compatibility:** Supports a wide range of mainstream datasets, including CuLane, TuSimple, VIL-100, and CurveLanes. 
+* **Multi-Dataset Compatibility:** Supports a wide range of mainstream datasets, including CuLane, TuSimple, VIL-100, and CurveLanes.
 * **Versatile Lane Modeling:** Offers a variety of lane modeling methods tailored to different use cases, ensuring flexibility and adaptability.
-* **Unified Code Structure:** Designed with a consistent dataset structure and standardized external interface for easy integration and use. 
-* **Efficient Storage of Segmentation Label:** Utilizes a space-efficient storage method for segmentation labels, simplifying the review and analysis of segmentation results. 
+* **Unified Code Structure:** Designed with a consistent dataset structure and standardized external interface for easy integration and use.
+* **Efficient Storage of Segmentation Label:** Utilizes a space-efficient storage method for segmentation labels, simplifying the review and analysis of segmentation results.
 * **Data Augmentation:** Integrates albumetation for consistent and robust model training, and supports multi-scale image cropping to enhance model generalization.
 
 </details>
@@ -31,7 +32,6 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
 * **Version Control and Environment Setup:** Provides tools for easy code version comparison and supports bash scripts for rapid environment setup with single-line commands, ensuring consistency and reproducibility.
 
 </details>
-
 
 ## Support Models
 
@@ -66,9 +66,10 @@ LaneDetection is a comprehensive and stylistically unified lane detection librar
     </tr>
 </table>
 
-
 ## Getting Started
+
 ### Install
+
 <details>
 <summary>Regular Method</summary>
 
@@ -92,6 +93,7 @@ cd libs/models/layers/nms/ # 确保本地cuda版本与conda中一致
 python setup.py install
 cd ../../../../ # TODO: 直接导入
 ```
+
 </details>
 
 <details>
@@ -104,6 +106,7 @@ source install.sh
 </details>
 
 ### Dataset Preparation
+
 <details>
 <summary>CULane</summary>
 
@@ -279,7 +282,6 @@ Finally the dataset folder would look like:
 <details>
 <summary>CurveLanes</summary>
 
-
 [\[Introduction\]](https://github.com/SoulmateB/CurveLanes)
 
 Download the dataset from the [\[Download Page\]](https://github.com/SoulmateB/CurveLanes).
@@ -334,8 +336,8 @@ python tools/generate_seg/generate_seg_curvelanes.py <CURVELANES.BASE_DIR>
 
 </details>
 
-
 ### User Guides
+
 <details>
 <summary>Inference</summary>
 
@@ -366,6 +368,7 @@ python tools/test.py <config file path> <checkpoint path> \
 # distributed testing
 bash tools/dist_test.sh <config file path> <checkpoint path> <gpu number>
 ```
+
 </details>
 
 <details>
@@ -378,8 +381,6 @@ python tools/analysis_tools/calculate_frame_diff.py [culane_root_path]
 ```
 
 </details>
-
-
 
 ## Citation
 
