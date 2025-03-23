@@ -349,7 +349,7 @@ python tools/analysis_tools/calculate_frame_diff.py [culane_root_path]
 
 </details>
 
-## Support Models
+<!-- ## Support Models
 
 <table align="center">
     <tr>
@@ -380,7 +380,7 @@ python tools/analysis_tools/calculate_frame_diff.py [culane_root_path]
         <td>Line-Proposal&Line-Anchor Detection</td>
         <td>☐LaneATT ☑<a href="./configs/clrnet/README.md">CLRNet</a> ☑<a href="./configs/clrernet/README.md">CLRerNet</a> ☐O2SFormer ☐ADNet</td>
     </tr>
-</table>
+</table> -->
 
 ## Citation
 
